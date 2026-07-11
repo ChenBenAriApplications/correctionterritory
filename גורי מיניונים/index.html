@@ -373,50 +373,33 @@
             if (!isRunning || chantRunning || !('speechSynthesis' in window)) return;
             chantRunning = true;
 
-            function shoutPhrase() {
+            const words = CHANT_PHRASE.split(' ');
+            const WORD_GAP = 380;
+
+            function shoutNextWord(wordIndex) {
                 if (!isRunning) {
                     chantRunning = false;
                     return;
                 }
 
-                let wordIndex = 0;
-                const words = CHANT_PHRASE.split(' ');
+                const idx = wordIndex % words.length;
+                triggerChantBubbles();
 
-                function shoutNextWord() {
-                    if (!isRunning) {
-                        chantRunning = false;
-                        return;
-                    }
+                const u = new SpeechSynthesisUtterance(words[idx]);
+                u.lang = 'he-IL';
+                u.rate = 0.7 + Math.random() * 0.1;
+                u.pitch = 1.0 + Math.random() * 0.3;
+                u.volume = 1;
+                const voice = getHebrewVoice();
+                if (voice) u.voice = voice;
 
-                    if (wordIndex >= words.length) {
-                        setTimeout(shoutPhrase, 2500);
-                        return;
-                    }
-
-                    triggerChantBubbles();
-
-                    const u = new SpeechSynthesisUtterance(words[wordIndex]);
-                    u.lang = 'he-IL';
-                    u.rate = 0.65 + Math.random() * 0.1;
-                    u.pitch = 1.0 + Math.random() * 0.3;
-                    u.volume = 1;
-                    const voice = getHebrewVoice();
-                    if (voice) u.voice = voice;
-                    u.onend = function() {
-                        wordIndex++;
-                        setTimeout(shoutNextWord, 1300);
-                    };
-                    u.onerror = function() {
-                        wordIndex++;
-                        setTimeout(shoutNextWord, 1300);
-                    };
-                    speechSynthesis.speak(u);
-                }
-
-                shoutNextWord();
+                const next = wordIndex + 1;
+                u.onend = function() { setTimeout(function() { shoutNextWord(next); }, WORD_GAP); };
+                u.onerror = function() { setTimeout(function() { shoutNextWord(next); }, WORD_GAP); };
+                speechSynthesis.speak(u);
             }
 
-            shoutPhrase();
+            shoutNextWord(0);
         }
 
         function calcMinionCount() {
