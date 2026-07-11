@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>גורי מיניונים</title>
-    <meta name="description" content="גורי! גורי! גורי!">
+    <meta name="description" content="גורי גורי גורי גורי">
     <meta property="og:title" content="גורי מיניונים">
-    <meta property="og:description" content="גורי! גורי! גורי!">
+    <meta property="og:description" content="גורי גורי גורי גורי">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="he_IL">
     <meta name="twitter:card" content="summary">
@@ -21,10 +21,7 @@
             touch-action: manipulation;
         }
 
-        body {
-            background: #29b6f6;
-            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
-        }
+        body { background: #1b5e20; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
 
         #startBtn {
             position: fixed;
@@ -48,9 +45,7 @@
             transform: scale(0.98);
         }
 
-        #startBtn.hidden {
-            display: none;
-        }
+        #startBtn.hidden { display: none; }
 
         @keyframes btnBounce {
             0%, 100% { transform: scale(1); }
@@ -62,50 +57,67 @@
             inset: 0;
             z-index: 1;
             display: none;
-            background: linear-gradient(180deg, #87ceeb 0%, #4fc3f7 40%, #29b6f6 100%);
+            overflow: hidden;
+            background: linear-gradient(180deg, #2e7d32 0%, #1b5e20 55%, #0d3d12 100%);
         }
 
-        .minion-field.active {
-            display: block;
+        .minion-field.active { display: block; }
+
+        .stadium-lights {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 15% 0%, rgba(255,255,200,0.35) 0%, transparent 45%),
+                radial-gradient(ellipse at 85% 0%, rgba(255,255,200,0.35) 0%, transparent 45%),
+                radial-gradient(ellipse at 50% 100%, rgba(0,0,0,0.3) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
         }
 
         .minion {
             position: absolute;
             will-change: transform;
-            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.25));
+            filter: drop-shadow(1px 3px 4px rgba(0,0,0,0.35));
+            z-index: 2;
         }
 
         .minion-body {
             position: relative;
-            width: var(--size, 60px);
-            height: calc(var(--size, 60px) * 1.35);
+            width: var(--size);
+            height: calc(var(--size) * 1.4);
         }
 
         .minion-head {
-            width: var(--size, 60px);
-            height: calc(var(--size, 60px) * 0.85);
+            width: var(--size);
+            height: calc(var(--size) * 0.88);
             background: linear-gradient(160deg, #ffe566 0%, #f5d000 50%, #e6c200 100%);
             border-radius: 50% 50% 45% 45%;
             position: relative;
             z-index: 2;
+            animation: headShake 0.25s ease-in-out infinite alternate;
+        }
+
+        @keyframes headShake {
+            from { transform: rotate(-4deg); }
+            to { transform: rotate(4deg); }
         }
 
         .goggles {
             position: absolute;
-            top: 28%;
+            top: 26%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translateX(-50%) rotate(var(--goggle-tilt, 0deg));
             display: flex;
-            gap: 2px;
+            gap: 1px;
             z-index: 3;
         }
 
         .goggle-lens {
-            width: calc(var(--size, 60px) * 0.32);
-            height: calc(var(--size, 60px) * 0.32);
+            width: calc(var(--size) * 0.33);
+            height: calc(var(--size) * 0.33);
             background: radial-gradient(circle at 35% 35%, #e8e8e8, #9e9e9e 60%, #616161);
             border-radius: 50%;
-            border: 3px solid #424242;
+            border: 2px solid #424242;
             position: relative;
             overflow: hidden;
         }
@@ -113,17 +125,17 @@
         .goggle-lens::after {
             content: '';
             position: absolute;
-            width: 35%;
-            height: 35%;
+            width: 38%;
+            height: 38%;
             background: #1a1a2e;
             border-radius: 50%;
-            top: 40%;
-            left: 35%;
+            top: 38%;
+            left: 32%;
         }
 
         .goggle-bridge {
-            width: calc(var(--size, 60px) * 0.08);
-            height: calc(var(--size, 60px) * 0.12);
+            width: calc(var(--size) * 0.07);
+            height: calc(var(--size) * 0.11);
             background: #424242;
             align-self: center;
             border-radius: 2px;
@@ -131,10 +143,10 @@
 
         .goggle-strap {
             position: absolute;
-            top: 32%;
-            left: -8%;
-            right: -8%;
-            height: calc(var(--size, 60px) * 0.1);
+            top: 30%;
+            left: -10%;
+            right: -10%;
+            height: calc(var(--size) * 0.09);
             background: #424242;
             border-radius: 4px;
             z-index: 1;
@@ -142,13 +154,19 @@
 
         .mouth {
             position: absolute;
-            bottom: 18%;
+            bottom: 14%;
             left: 50%;
             transform: translateX(-50%);
-            width: calc(var(--size, 60px) * 0.35);
-            height: calc(var(--size, 60px) * 0.12);
-            border-bottom: 3px solid #333;
-            border-radius: 0 0 50% 50%;
+            width: calc(var(--size) * 0.32);
+            height: calc(var(--size) * 0.22);
+            background: #2d2d2d;
+            border-radius: 50%;
+            animation: yell 0.12s ease-in-out infinite alternate;
+        }
+
+        @keyframes yell {
+            from { transform: translateX(-50%) scale(0.85); }
+            to { transform: translateX(-50%) scale(1.25); }
         }
 
         .overalls {
@@ -156,8 +174,8 @@
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: calc(var(--size, 60px) * 0.75);
-            height: calc(var(--size, 60px) * 0.55);
+            width: calc(var(--size) * 0.78);
+            height: calc(var(--size) * 0.52);
             background: linear-gradient(180deg, #1565c0, #0d47a1);
             border-radius: 8px 8px 12px 12px;
             z-index: 1;
@@ -169,84 +187,116 @@
             top: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: calc(var(--size, 60px) * 0.2);
-            height: 60%;
+            width: calc(var(--size) * 0.2);
+            height: 55%;
             background: #0d47a1;
             border-radius: 0 0 4px 4px;
         }
 
-        .pocket {
-            position: absolute;
-            bottom: 15%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: calc(var(--size, 60px) * 0.3);
-            height: calc(var(--size, 60px) * 0.18);
-            border: 2px solid #0a3d7a;
-            border-radius: 4px;
-            background: rgba(255,255,255,0.1);
-        }
-
         .arm {
             position: absolute;
-            width: calc(var(--size, 60px) * 0.15);
-            height: calc(var(--size, 60px) * 0.35);
+            width: calc(var(--size) * 0.14);
+            height: calc(var(--size) * 0.42);
             background: linear-gradient(160deg, #ffe566, #f5d000);
             border-radius: 8px;
-            top: 55%;
-            z-index: 0;
+            top: 38%;
+            z-index: 4;
+            transform-origin: bottom center;
         }
 
-        .arm.left { left: -5%; transform: rotate(20deg); }
-        .arm.right { right: -5%; transform: rotate(-20deg); }
+        .arm.left {
+            left: -2%;
+            animation: armLeft 0.3s ease-in-out infinite alternate;
+        }
+
+        .arm.right {
+            right: -2%;
+            animation: armRight 0.3s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes armLeft {
+            from { transform: rotate(-155deg); }
+            to { transform: rotate(-125deg); }
+        }
+
+        @keyframes armRight {
+            from { transform: rotate(155deg); }
+            to { transform: rotate(125deg); }
+        }
 
         .leg {
             position: absolute;
-            bottom: -12%;
-            width: calc(var(--size, 60px) * 0.18);
-            height: calc(var(--size, 60px) * 0.2);
+            bottom: -10%;
+            width: calc(var(--size) * 0.17);
+            height: calc(var(--size) * 0.18);
             background: #0d47a1;
-            border-radius: 0 0 6px 6px;
+            border-radius: 0 0 5px 5px;
         }
 
-        .leg.left { left: 18%; }
-        .leg.right { right: 18%; }
+        .leg.left { left: 20%; }
+        .leg.right { right: 20%; }
 
         .shoe {
             position: absolute;
-            bottom: -22%;
-            width: calc(var(--size, 60px) * 0.22);
-            height: calc(var(--size, 60px) * 0.1);
+            bottom: -18%;
+            width: calc(var(--size) * 0.2);
+            height: calc(var(--size) * 0.09);
             background: #212121;
-            border-radius: 50% 50% 4px 4px;
+            border-radius: 50% 50% 3px 3px;
         }
 
-        .shoe.left { left: 15%; }
-        .shoe.right { right: 15%; }
+        .shoe.left { left: 17%; }
+        .shoe.right { right: 17%; }
 
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0) rotate(var(--tilt, 0deg)); }
-            50% { transform: translateY(calc(-1 * var(--bounce, 40px))) rotate(var(--tilt, 0deg)); }
+        @keyframes crowdJump {
+            0%, 100% { transform: translateY(0) scaleX(1); }
+            35% { transform: translateY(calc(-1 * var(--bounce))) scaleX(1.05); }
+            55% { transform: translateY(calc(-1 * var(--bounce) * 0.6)) scaleX(0.98); }
+            75% { transform: translateY(calc(-1 * var(--bounce) * 0.9)) scaleX(1.03); }
         }
 
-        @keyframes bounceAlt {
-            0%, 100% { transform: translateY(calc(-1 * var(--bounce, 40px) * 0.3)) rotate(var(--tilt, 0deg)); }
-            50% { transform: translateY(calc(-1 * var(--bounce, 40px))) rotate(var(--tilt, 0deg)); }
+        .chant-bubble {
+            position: absolute;
+            color: #fff;
+            font-weight: 900;
+            font-size: calc(var(--size) * 0.28);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+            top: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .minion.chanting .chant-bubble {
+            animation: bubblePop 0.5s ease-out;
+        }
+
+        @keyframes bubblePop {
+            0% { opacity: 0; transform: translateX(-50%) translateY(0) scale(0.5); }
+            30% { opacity: 1; transform: translateX(-50%) translateY(-8px) scale(1.2); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-20px) scale(1); }
         }
     </style>
 </head>
 <body>
     <button type="button" id="startBtn">מיניונים</button>
-    <div class="minion-field" id="minionField"></div>
+    <div class="minion-field" id="minionField">
+        <div class="stadium-lights"></div>
+    </div>
 
     <script>
-        const MINION_COUNT = 28;
         const startBtn = document.getElementById('startBtn');
         const field = document.getElementById('minionField');
         let isRunning = false;
-        let speechInterval = null;
         let voices = [];
         let minions = [];
+        let audioCtx = null;
+        let noiseNode = null;
+        let stompInterval = null;
+        let bubbleInterval = null;
+        let chantRunning = false;
 
         function loadVoices() {
             voices = speechSynthesis.getVoices();
@@ -254,6 +304,12 @@
         if ('speechSynthesis' in window) {
             speechSynthesis.onvoiceschanged = loadVoices;
             loadVoices();
+        }
+
+        function getHebrewVoice() {
+            return voices.find(v => v.lang.startsWith('he')) ||
+                   voices.find(v => v.lang.includes('he')) ||
+                   voices[0];
         }
 
         function unlockSpeech() {
@@ -265,29 +321,124 @@
             speechSynthesis.speak(silent);
         }
 
-        function createMinion(index) {
-            const size = 35 + Math.random() * 45;
-            const left = Math.random() * 92;
-            const top = Math.random() * 85;
-            const bounce = 25 + Math.random() * 50;
-            const duration = 0.8 + Math.random() * 1.8;
-            const delay = Math.random() * 3;
-            const tilt = (Math.random() - 0.5) * 20;
-            const animName = index % 2 === 0 ? 'bounce' : 'bounceAlt';
+        function startStadiumAudio() {
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const bufferSize = audioCtx.sampleRate * 2;
+                const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = (Math.random() * 2 - 1) * 0.5;
+                }
+                noiseNode = audioCtx.createBufferSource();
+                noiseNode.buffer = noiseBuffer;
+                noiseNode.loop = true;
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 600;
+                filter.Q.value = 0.4;
+                const gain = audioCtx.createGain();
+                gain.gain.value = 0.12;
+                noiseNode.connect(filter).connect(gain).connect(audioCtx.destination);
+                noiseNode.start();
+
+                stompInterval = setInterval(function() {
+                    if (!isRunning || !audioCtx) return;
+                    const osc = audioCtx.createOscillator();
+                    const stompGain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(90, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(45, audioCtx.currentTime + 0.12);
+                    stompGain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+                    stompGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
+                    osc.connect(stompGain).connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.2);
+                }, 280);
+            } catch (e) { /* audio optional */ }
+        }
+
+        function crowdChant() {
+            if (!isRunning || chantRunning || !('speechSynthesis' in window)) return;
+            chantRunning = true;
+
+            function nextChant() {
+                if (!isRunning) {
+                    chantRunning = false;
+                    return;
+                }
+
+                const phrases = [
+                    'גורי גורי גורי גורי',
+                    'גורי גורי גורי גורי גורי גורי גורי גורי',
+                    'גורי גורי גורי גורי גורי גורי',
+                    'גורי גורי גורי גורי גורי גורי גורי גורי גורי גורי'
+                ];
+
+                const u = new SpeechSynthesisUtterance(phrases[Math.floor(Math.random() * phrases.length)]);
+                u.lang = 'he-IL';
+                u.rate = 1.9 + Math.random() * 0.7;
+                u.pitch = 0.75 + Math.random() * 0.7;
+                u.volume = 1;
+                const voice = getHebrewVoice();
+                if (voice) u.voice = voice;
+                u.onend = nextChant;
+                u.onerror = nextChant;
+                speechSynthesis.speak(u);
+            }
+
+            nextChant();
+
+            setTimeout(function() {
+                if (!isRunning) return;
+                function rapidGori() {
+                    if (!isRunning) return;
+                    const u = new SpeechSynthesisUtterance('גורי');
+                    u.lang = 'he-IL';
+                    u.rate = 2.5 + Math.random();
+                    u.pitch = 0.8 + Math.random() * 0.8;
+                    u.volume = 0.7 + Math.random() * 0.3;
+                    const voice = getHebrewVoice();
+                    if (voice) u.voice = voice;
+                    speechSynthesis.speak(u);
+                }
+                setInterval(rapidGori, 180);
+            }, 400);
+        }
+
+        function calcMinionCount() {
+            const cellW = 42;
+            const cellH = 52;
+            const cols = Math.ceil(window.innerWidth / cellW) + 1;
+            const rows = Math.ceil(window.innerHeight / cellH) + 1;
+            return cols * rows;
+        }
+
+        function createMinion(col, row, cols, rows) {
+            const size = 28 + Math.random() * 14;
+            const cellW = window.innerWidth / cols;
+            const cellH = window.innerHeight / rows;
+            const left = col * cellW + (Math.random() - 0.5) * cellW * 0.4;
+            const top = row * cellH + (Math.random() - 0.5) * cellH * 0.3;
+            const bounce = 12 + Math.random() * 22;
+            const duration = 0.35 + Math.random() * 0.35;
+            const delay = Math.random() * 0.5;
+            const goggleTilt = (Math.random() - 0.5) * 16;
 
             const el = document.createElement('div');
             el.className = 'minion';
             el.style.cssText = `
                 --size: ${size}px;
                 --bounce: ${bounce}px;
-                --tilt: ${tilt}deg;
-                left: ${left}%;
-                top: ${top}%;
-                animation: ${animName} ${duration}s ease-in-out ${delay}s infinite;
+                --goggle-tilt: ${goggleTilt}deg;
+                left: ${left}px;
+                top: ${top}px;
+                animation: crowdJump ${duration}s ease-in-out ${delay}s infinite;
             `;
 
             el.innerHTML = `
                 <div class="minion-body">
+                    <div class="chant-bubble">גורי!</div>
                     <div class="arm left"></div>
                     <div class="arm right"></div>
                     <div class="minion-head">
@@ -299,9 +450,7 @@
                         </div>
                         <div class="mouth"></div>
                     </div>
-                    <div class="overalls">
-                        <div class="pocket"></div>
-                    </div>
+                    <div class="overalls"></div>
                     <div class="leg left"></div>
                     <div class="leg right"></div>
                     <div class="shoe left"></div>
@@ -313,25 +462,34 @@
             return el;
         }
 
-        function getHebrewVoice() {
-            return voices.find(v => v.lang.startsWith('he')) ||
-                   voices.find(v => v.lang.includes('he')) ||
-                   voices[0];
+        function fillScreenWithMinions() {
+            minions = [];
+            const existing = field.querySelectorAll('.minion');
+            existing.forEach(function(m) { m.remove(); });
+
+            const count = calcMinionCount();
+            const cols = Math.ceil(Math.sqrt(count * (window.innerWidth / window.innerHeight)));
+            const rows = Math.ceil(count / cols);
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (minions.length >= count) break;
+                    minions.push(createMinion(c, r, cols, rows));
+                }
+            }
         }
 
-        function sayGori() {
-            if (!isRunning || !('speechSynthesis' in window)) return;
-
-            const utterance = new SpeechSynthesisUtterance('גורי! גורי! גורי!');
-            utterance.lang = 'he-IL';
-            utterance.rate = 1.3;
-            utterance.pitch = 1.6;
-            utterance.volume = 1;
-            const voice = getHebrewVoice();
-            if (voice) utterance.voice = voice;
-
-            speechSynthesis.cancel();
-            speechSynthesis.speak(utterance);
+        function animateChantBubbles() {
+            bubbleInterval = setInterval(function() {
+                if (!isRunning || minions.length === 0) return;
+                const batch = 3 + Math.floor(Math.random() * 5);
+                for (let i = 0; i < batch; i++) {
+                    const m = minions[Math.floor(Math.random() * minions.length)];
+                    m.classList.remove('chanting');
+                    void m.offsetWidth;
+                    m.classList.add('chanting');
+                }
+            }, 120);
         }
 
         function startExperience() {
@@ -339,19 +497,13 @@
             isRunning = true;
 
             unlockSpeech();
-
             startBtn.classList.add('hidden');
             field.classList.add('active');
 
-            minions = [];
-            field.innerHTML = '';
-            for (let i = 0; i < MINION_COUNT; i++) {
-                minions.push(createMinion(i));
-            }
-
-            sayGori();
-
-            speechInterval = setInterval(sayGori, 3500);
+            fillScreenWithMinions();
+            startStadiumAudio();
+            crowdChant();
+            animateChantBubbles();
         }
 
         startBtn.addEventListener('click', startExperience, { passive: false });
@@ -360,12 +512,16 @@
             startExperience();
         }, { passive: false });
 
+        window.addEventListener('resize', function() {
+            if (isRunning) fillScreenWithMinions();
+        });
+
         document.addEventListener('visibilitychange', function() {
-            if (document.hidden && speechInterval) {
-                clearInterval(speechInterval);
-                speechInterval = null;
-            } else if (!document.hidden && isRunning && !speechInterval) {
-                speechInterval = setInterval(sayGori, 3500);
+            if (document.hidden) {
+                if (audioCtx && audioCtx.state === 'running') audioCtx.suspend();
+            } else if (isRunning) {
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                if ('speechSynthesis' in window) speechSynthesis.resume();
             }
         });
     </script>
