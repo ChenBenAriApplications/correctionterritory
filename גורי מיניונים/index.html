@@ -295,14 +295,10 @@
         let audioCtx = null;
         let noiseNode = null;
         let chantRunning = false;
+        let chantInterval = null;
 
-        const RISING_CHANT = [
-            { text: 'גו',      rate: 0.34, pitch: 0.52, gap: 90 },
-            { text: 'וווו',    rate: 0.30, pitch: 0.70, gap: 110 },
-            { text: 'ררר',     rate: 0.32, pitch: 0.90, gap: 100 },
-            { text: 'יייי',    rate: 0.36, pitch: 1.12, gap: 95 },
-            { text: 'ייי!',    rate: 0.40, pitch: 1.42, gap: 320 }
-        ];
+        const CHANT_EVERY_MS = 1000;
+        const CHANT_MS = 400;
 
         function loadVoices() {
             voices = speechSynthesis.getVoices();
@@ -350,41 +346,33 @@
             } catch (e) { /* audio optional */ }
         }
 
-        function playRisingCrowdSwell() {
+        function playCrowdHit() {
             if (!audioCtx || !isRunning) return;
             const t = audioCtx.currentTime;
-            const dur = 2.4;
+            const dur = CHANT_MS / 1000;
 
             const osc = audioCtx.createOscillator();
             osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(100, t);
-            osc.frequency.exponentialRampToValueAtTime(480, t + dur * 0.88);
+            osc.frequency.setValueAtTime(120, t);
+            osc.frequency.exponentialRampToValueAtTime(380, t + dur * 0.9);
 
             const oscGain = audioCtx.createGain();
-            oscGain.gain.setValueAtTime(0.001, t);
-            oscGain.gain.linearRampToValueAtTime(0.06, t + 0.2);
-            oscGain.gain.linearRampToValueAtTime(0.09, t + dur * 0.65);
+            oscGain.gain.setValueAtTime(0.08, t);
             oscGain.gain.exponentialRampToValueAtTime(0.001, t + dur);
 
-            const lp = audioCtx.createBiquadFilter();
-            lp.type = 'lowpass';
-            lp.frequency.setValueAtTime(350, t);
-            lp.frequency.linearRampToValueAtTime(1400, t + dur);
-
-            osc.connect(lp).connect(oscGain).connect(audioCtx.destination);
+            osc.connect(oscGain).connect(audioCtx.destination);
             osc.start(t);
             osc.stop(t + dur);
 
             const stomp = audioCtx.createOscillator();
             const stompG = audioCtx.createGain();
             stomp.type = 'sine';
-            stomp.frequency.setValueAtTime(65, t);
-            stomp.frequency.exponentialRampToValueAtTime(40, t + 0.35);
-            stompG.gain.setValueAtTime(0.18, t);
-            stompG.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+            stomp.frequency.setValueAtTime(75, t);
+            stompG.gain.setValueAtTime(0.14, t);
+            stompG.gain.exponentialRampToValueAtTime(0.001, t + dur);
             stomp.connect(stompG).connect(audioCtx.destination);
             stomp.start(t);
-            stomp.stop(t + 0.4);
+            stomp.stop(t + dur);
         }
 
         function triggerChantBubbles() {
@@ -398,59 +386,43 @@
             }
         }
 
-        function shoutRisingGori(done) {
-            if (!isRunning) return;
+        function shoutGoriBeat() {
+            if (!isRunning || !('speechSynthesis' in window)) return;
+
+            triggerChantBubbles();
+            playCrowdHit();
+            speechSynthesis.cancel();
+
             const voice = getHebrewVoice();
-            let seg = 0;
+            const cutoff = setTimeout(function() { speechSynthesis.cancel(); }, CHANT_MS);
 
-            function nextSegment() {
-                if (!isRunning) {
-                    chantRunning = false;
-                    return;
-                }
-                if (seg >= RISING_CHANT.length) {
-                    if (done) done();
-                    return;
-                }
+            const u1 = new SpeechSynthesisUtterance('גו');
+            u1.lang = 'he-IL';
+            u1.rate = 4.2;
+            u1.pitch = 0.62;
+            u1.volume = 1;
+            if (voice) u1.voice = voice;
 
-                if (seg === 0) {
-                    triggerChantBubbles();
-                    playRisingCrowdSwell();
-                }
-                if (seg === 3) triggerChantBubbles();
-
-                const s = RISING_CHANT[seg];
-                const u = new SpeechSynthesisUtterance(s.text);
-                u.lang = 'he-IL';
-                u.rate = s.rate;
-                u.pitch = s.pitch;
-                u.volume = 1;
-                if (voice) u.voice = voice;
-
-                seg++;
-                u.onend = function() { setTimeout(nextSegment, s.gap); };
-                u.onerror = function() { setTimeout(nextSegment, s.gap); };
-                speechSynthesis.speak(u);
-            }
-
-            nextSegment();
+            u1.onend = function() {
+                const u2 = new SpeechSynthesisUtterance('רי!');
+                u2.lang = 'he-IL';
+                u2.rate = 4.8;
+                u2.pitch = 1.38;
+                u2.volume = 1;
+                if (voice) u2.voice = voice;
+                u2.onend = function() { clearTimeout(cutoff); };
+                u2.onerror = function() { clearTimeout(cutoff); };
+                speechSynthesis.speak(u2);
+            };
+            u1.onerror = function() { clearTimeout(cutoff); };
+            speechSynthesis.speak(u1);
         }
 
         function crowdChant() {
             if (!isRunning || chantRunning || !('speechSynthesis' in window)) return;
             chantRunning = true;
-
-            function loop() {
-                if (!isRunning) {
-                    chantRunning = false;
-                    return;
-                }
-                shoutRisingGori(function() {
-                    setTimeout(loop, 300);
-                });
-            }
-
-            loop();
+            shoutGoriBeat();
+            chantInterval = setInterval(shoutGoriBeat, CHANT_EVERY_MS);
         }
 
         function calcMinionCount() {
@@ -468,7 +440,7 @@
             const left = col * cellW + (Math.random() - 0.5) * cellW * 0.4;
             const top = row * cellH + (Math.random() - 0.5) * cellH * 0.3;
             const bounce = 10 + Math.random() * 16;
-            const duration = 1.4 + Math.random() * 0.8;
+            const duration = 0.9 + Math.random() * 0.2;
             const delay = Math.random() * 1.2;
             const goggleTilt = (Math.random() - 0.5) * 16;
 
@@ -485,7 +457,7 @@
 
             el.innerHTML = `
                 <div class="minion-body">
-                    <div class="chant-bubble">גוורייי!</div>
+                    <div class="chant-bubble">גורי!</div>
                     <div class="arm left"></div>
                     <div class="arm right"></div>
                     <div class="minion-head">
@@ -552,9 +524,14 @@
         document.addEventListener('visibilitychange', function() {
             if (document.hidden) {
                 if (audioCtx && audioCtx.state === 'running') audioCtx.suspend();
+                if (chantInterval) { clearInterval(chantInterval); chantInterval = null; }
             } else if (isRunning) {
                 if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
                 if ('speechSynthesis' in window) speechSynthesis.resume();
+                if (!chantInterval && chantRunning) {
+                    shoutGoriBeat();
+                    chantInterval = setInterval(shoutGoriBeat, CHANT_EVERY_MS);
+                }
             }
         });
     </script>
