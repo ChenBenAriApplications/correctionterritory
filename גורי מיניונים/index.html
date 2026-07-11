@@ -294,9 +294,15 @@
         let minions = [];
         let audioCtx = null;
         let noiseNode = null;
-        let stompInterval = null;
         let chantRunning = false;
-        const CHANT_PHRASE = 'גורי! גורי! גורי! גורי! גורי!';
+
+        const RISING_CHANT = [
+            { text: 'גו',      rate: 0.34, pitch: 0.52, gap: 90 },
+            { text: 'וווו',    rate: 0.30, pitch: 0.70, gap: 110 },
+            { text: 'ררר',     rate: 0.32, pitch: 0.90, gap: 100 },
+            { text: 'יייי',    rate: 0.36, pitch: 1.12, gap: 95 },
+            { text: 'ייי!',    rate: 0.40, pitch: 1.42, gap: 320 }
+        ];
 
         function loadVoices() {
             voices = speechSynthesis.getVoices();
@@ -341,21 +347,44 @@
                 gain.gain.value = 0.12;
                 noiseNode.connect(filter).connect(gain).connect(audioCtx.destination);
                 noiseNode.start();
-
-                stompInterval = setInterval(function() {
-                    if (!isRunning || !audioCtx) return;
-                    const osc = audioCtx.createOscillator();
-                    const stompGain = audioCtx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(90, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(45, audioCtx.currentTime + 0.15);
-                    stompGain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                    stompGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.22);
-                    osc.connect(stompGain).connect(audioCtx.destination);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.25);
-                }, 1500);
             } catch (e) { /* audio optional */ }
+        }
+
+        function playRisingCrowdSwell() {
+            if (!audioCtx || !isRunning) return;
+            const t = audioCtx.currentTime;
+            const dur = 2.4;
+
+            const osc = audioCtx.createOscillator();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(100, t);
+            osc.frequency.exponentialRampToValueAtTime(480, t + dur * 0.88);
+
+            const oscGain = audioCtx.createGain();
+            oscGain.gain.setValueAtTime(0.001, t);
+            oscGain.gain.linearRampToValueAtTime(0.06, t + 0.2);
+            oscGain.gain.linearRampToValueAtTime(0.09, t + dur * 0.65);
+            oscGain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+            const lp = audioCtx.createBiquadFilter();
+            lp.type = 'lowpass';
+            lp.frequency.setValueAtTime(350, t);
+            lp.frequency.linearRampToValueAtTime(1400, t + dur);
+
+            osc.connect(lp).connect(oscGain).connect(audioCtx.destination);
+            osc.start(t);
+            osc.stop(t + dur);
+
+            const stomp = audioCtx.createOscillator();
+            const stompG = audioCtx.createGain();
+            stomp.type = 'sine';
+            stomp.frequency.setValueAtTime(65, t);
+            stomp.frequency.exponentialRampToValueAtTime(40, t + 0.35);
+            stompG.gain.setValueAtTime(0.18, t);
+            stompG.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+            stomp.connect(stompG).connect(audioCtx.destination);
+            stomp.start(t);
+            stomp.stop(t + 0.4);
         }
 
         function triggerChantBubbles() {
@@ -369,37 +398,59 @@
             }
         }
 
-        function crowdChant() {
-            if (!isRunning || chantRunning || !('speechSynthesis' in window)) return;
-            chantRunning = true;
+        function shoutRisingGori(done) {
+            if (!isRunning) return;
+            const voice = getHebrewVoice();
+            let seg = 0;
 
-            const words = CHANT_PHRASE.split(' ');
-            const WORD_GAP = 380;
-
-            function shoutNextWord(wordIndex) {
+            function nextSegment() {
                 if (!isRunning) {
                     chantRunning = false;
                     return;
                 }
+                if (seg >= RISING_CHANT.length) {
+                    if (done) done();
+                    return;
+                }
 
-                const idx = wordIndex % words.length;
-                triggerChantBubbles();
+                if (seg === 0) {
+                    triggerChantBubbles();
+                    playRisingCrowdSwell();
+                }
+                if (seg === 3) triggerChantBubbles();
 
-                const u = new SpeechSynthesisUtterance(words[idx]);
+                const s = RISING_CHANT[seg];
+                const u = new SpeechSynthesisUtterance(s.text);
                 u.lang = 'he-IL';
-                u.rate = 0.7 + Math.random() * 0.1;
-                u.pitch = 1.0 + Math.random() * 0.3;
+                u.rate = s.rate;
+                u.pitch = s.pitch;
                 u.volume = 1;
-                const voice = getHebrewVoice();
                 if (voice) u.voice = voice;
 
-                const next = wordIndex + 1;
-                u.onend = function() { setTimeout(function() { shoutNextWord(next); }, WORD_GAP); };
-                u.onerror = function() { setTimeout(function() { shoutNextWord(next); }, WORD_GAP); };
+                seg++;
+                u.onend = function() { setTimeout(nextSegment, s.gap); };
+                u.onerror = function() { setTimeout(nextSegment, s.gap); };
                 speechSynthesis.speak(u);
             }
 
-            shoutNextWord(0);
+            nextSegment();
+        }
+
+        function crowdChant() {
+            if (!isRunning || chantRunning || !('speechSynthesis' in window)) return;
+            chantRunning = true;
+
+            function loop() {
+                if (!isRunning) {
+                    chantRunning = false;
+                    return;
+                }
+                shoutRisingGori(function() {
+                    setTimeout(loop, 300);
+                });
+            }
+
+            loop();
         }
 
         function calcMinionCount() {
@@ -417,7 +468,7 @@
             const left = col * cellW + (Math.random() - 0.5) * cellW * 0.4;
             const top = row * cellH + (Math.random() - 0.5) * cellH * 0.3;
             const bounce = 10 + Math.random() * 16;
-            const duration = 1.1 + Math.random() * 0.6;
+            const duration = 1.4 + Math.random() * 0.8;
             const delay = Math.random() * 1.2;
             const goggleTilt = (Math.random() - 0.5) * 16;
 
@@ -434,7 +485,7 @@
 
             el.innerHTML = `
                 <div class="minion-body">
-                    <div class="chant-bubble">גורי!</div>
+                    <div class="chant-bubble">גוורייי!</div>
                     <div class="arm left"></div>
                     <div class="arm right"></div>
                     <div class="minion-head">
