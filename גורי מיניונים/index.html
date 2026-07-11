@@ -4,498 +4,321 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>גורי מיניונים</title>
-    <meta name="description" content="גורי גורי גורי גורי">
+    <meta name="description" content="גורי! קהל באצטדיון">
     <meta property="og:title" content="גורי מיניונים">
-    <meta property="og:description" content="גורי גורי גורי גורי">
+    <meta property="og:description" content="גורי! קהל באצטדיון">
     <meta property="og:type" content="website">
-    <meta property="og:locale" content="he_IL">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="גורי מיניונים">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            touch-action: manipulation;
-        }
-
+        html, body { width: 100%; height: 100%; overflow: hidden; touch-action: manipulation; }
         body { background: #1b5e20; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
 
-        #startBtn {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: linear-gradient(135deg, #ffe566, #f5d000);
-            color: #333;
-            font-size: clamp(2rem, 10vw, 4rem);
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 9999;
-            -webkit-appearance: none;
-            appearance: none;
-            animation: btnBounce 1s ease-in-out infinite;
-        }
-
-        #startBtn:active {
-            background: linear-gradient(135deg, #f5d000, #e6b800);
-            transform: scale(0.98);
-        }
-
-        #startBtn.hidden { display: none; }
-
-        @keyframes btnBounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.03); }
-        }
-
-        .minion-field {
-            position: fixed;
-            inset: 0;
-            z-index: 1;
-            display: none;
-            overflow: hidden;
+        .crowd-field {
+            position: fixed; inset: 0; overflow: hidden;
             background: linear-gradient(180deg, #2e7d32 0%, #1b5e20 55%, #0d3d12 100%);
         }
 
-        .minion-field.active { display: block; }
-
         .stadium-lights {
-            position: absolute;
-            inset: 0;
+            position: absolute; inset: 0; pointer-events: none; z-index: 0;
             background:
-                radial-gradient(ellipse at 15% 0%, rgba(255,255,200,0.35) 0%, transparent 45%),
-                radial-gradient(ellipse at 85% 0%, rgba(255,255,200,0.35) 0%, transparent 45%),
-                radial-gradient(ellipse at 50% 100%, rgba(0,0,0,0.3) 0%, transparent 60%);
-            pointer-events: none;
-            z-index: 0;
+                radial-gradient(ellipse at 15% 0%, rgba(255,255,200,0.4) 0%, transparent 45%),
+                radial-gradient(ellipse at 85% 0%, rgba(255,255,200,0.4) 0%, transparent 45%),
+                radial-gradient(ellipse at 50% 100%, rgba(0,0,0,0.35) 0%, transparent 60%);
         }
 
-        .minion {
-            position: absolute;
-            will-change: transform;
-            filter: drop-shadow(1px 3px 4px rgba(0,0,0,0.35));
-            z-index: 2;
+        .fan {
+            position: absolute; will-change: transform;
+            filter: drop-shadow(1px 3px 5px rgba(0,0,0,0.35)); z-index: 2;
         }
 
-        .minion-body {
-            position: relative;
-            width: var(--size);
-            height: calc(var(--size) * 1.4);
+        .fan-body { position: relative; width: var(--size); height: calc(var(--size) * 1.5); }
+
+        .ear {
+            position: absolute; width: calc(var(--size) * 0.42); height: calc(var(--size) * 0.42);
+            background: #111; border-radius: 50%; top: -8%; z-index: 1;
+        }
+        .ear.left { left: 2%; }
+        .ear.right { right: 2%; }
+
+        .head {
+            width: var(--size); height: calc(var(--size) * 0.9);
+            border-radius: 50%; position: relative; z-index: 3;
+            animation: headShake 0.35s ease-in-out infinite alternate;
         }
 
-        .minion-head {
-            width: var(--size);
-            height: calc(var(--size) * 0.88);
-            background: linear-gradient(160deg, #ffe566 0%, #f5d000 50%, #e6c200 100%);
-            border-radius: 50% 50% 45% 45%;
-            position: relative;
-            z-index: 2;
-            animation: headShake 0.25s ease-in-out infinite alternate;
+        .type-mickey .head { background: radial-gradient(circle at 40% 35%, #4a4a4a, #1a1a1a); }
+        .type-minnie .head { background: radial-gradient(circle at 40% 35%, #4a4a4a, #1a1a1a); }
+        .type-donald .head { background: radial-gradient(circle at 40% 30%, #fff, #e8e8e8); }
+        .type-goofy .head { background: radial-gradient(circle at 40% 35%, #2d2d2d, #111); }
+        .type-daisy .head { background: radial-gradient(circle at 40% 35%, #fff, #f0e6d8); }
+
+        .bow {
+            position: absolute; top: -6%; left: 50%; transform: translateX(-50%);
+            width: calc(var(--size) * 0.55); height: calc(var(--size) * 0.22);
+            background: #e91e63; border-radius: 40%; z-index: 5;
+        }
+        .bow::before, .bow::after {
+            content: ''; position: absolute; top: 20%; width: 35%; height: 70%;
+            background: #e91e63; border-radius: 50%;
+        }
+        .bow::before { left: -18%; }
+        .bow::after { right: -18%; }
+
+        .bill {
+            position: absolute; bottom: 22%; left: 50%; transform: translateX(-50%);
+            width: calc(var(--size) * 0.5); height: calc(var(--size) * 0.18);
+            background: #ffb300; border-radius: 50% 50% 45% 45%; z-index: 4;
         }
 
-        @keyframes headShake {
-            from { transform: rotate(-3deg); }
-            to { transform: rotate(3deg); }
+        .eye {
+            position: absolute; width: calc(var(--size) * 0.16); height: calc(var(--size) * 0.22);
+            background: #fff; border-radius: 50%; top: 32%; z-index: 4;
+            border: 2px solid #111;
+        }
+        .eye::after {
+            content: ''; position: absolute; width: 55%; height: 55%;
+            background: #111; border-radius: 50%; bottom: 8%; left: 22%;
+        }
+        .eye.left { left: 22%; }
+        .eye.right { right: 22%; }
+
+        .type-donald .eye, .type-daisy .eye {
+            width: calc(var(--size) * 0.14); height: calc(var(--size) * 0.2); top: 30%;
         }
 
-        .goggles {
-            position: absolute;
-            top: 26%;
-            left: 50%;
-            transform: translateX(-50%) rotate(var(--goggle-tilt, 0deg));
-            display: flex;
-            gap: 1px;
-            z-index: 3;
-        }
-
-        .goggle-lens {
-            width: calc(var(--size) * 0.33);
-            height: calc(var(--size) * 0.33);
-            background: radial-gradient(circle at 35% 35%, #e8e8e8, #9e9e9e 60%, #616161);
-            border-radius: 50%;
-            border: 2px solid #424242;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .goggle-lens::after {
-            content: '';
-            position: absolute;
-            width: 38%;
-            height: 38%;
-            background: #1a1a2e;
-            border-radius: 50%;
-            top: 38%;
-            left: 32%;
-        }
-
-        .goggle-bridge {
-            width: calc(var(--size) * 0.07);
-            height: calc(var(--size) * 0.11);
-            background: #424242;
-            align-self: center;
-            border-radius: 2px;
-        }
-
-        .goggle-strap {
-            position: absolute;
-            top: 30%;
-            left: -10%;
-            right: -10%;
-            height: calc(var(--size) * 0.09);
-            background: #424242;
-            border-radius: 4px;
-            z-index: 1;
+        .snout {
+            position: absolute; bottom: 18%; left: 50%; transform: translateX(-50%);
+            width: calc(var(--size) * 0.35); height: calc(var(--size) * 0.2);
+            background: #f5d0b0; border-radius: 50%; z-index: 4;
         }
 
         .mouth {
-            position: absolute;
-            bottom: 14%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: calc(var(--size) * 0.32);
-            height: calc(var(--size) * 0.22);
-            background: #2d2d2d;
-            border-radius: 50%;
-            animation: yell 0.55s ease-in-out infinite alternate;
+            position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%);
+            width: calc(var(--size) * 0.28); height: calc(var(--size) * 0.18);
+            background: #222; border-radius: 50%;
+            animation: yell 0.45s ease-in-out infinite alternate;
         }
 
-        @keyframes yell {
-            from { transform: translateX(-50%) scale(0.9); }
-            to { transform: translateX(-50%) scale(1.2); }
+        .shirt {
+            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: calc(var(--size) * 0.8); height: calc(var(--size) * 0.55);
+            border-radius: 10px 10px 14px 14px; z-index: 2;
         }
-
-        .overalls {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: calc(var(--size) * 0.78);
-            height: calc(var(--size) * 0.52);
-            background: linear-gradient(180deg, #1565c0, #0d47a1);
-            border-radius: 8px 8px 12px 12px;
-            z-index: 1;
-        }
-
-        .overalls::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: calc(var(--size) * 0.2);
-            height: 55%;
-            background: #0d47a1;
-            border-radius: 0 0 4px 4px;
-        }
+        .type-mickey .shirt { background: linear-gradient(180deg, #e53935, #b71c1c); }
+        .type-minnie .shirt { background: linear-gradient(180deg, #e91e63, #ad1457); }
+        .type-donald .shirt { background: linear-gradient(180deg, #1565c0, #0d47a1); }
+        .type-goofy .shirt { background: linear-gradient(180deg, #ff6f00, #e65100); }
+        .type-daisy .shirt { background: linear-gradient(180deg, #ab47bc, #7b1fa2); }
 
         .arm {
-            position: absolute;
-            width: calc(var(--size) * 0.14);
-            height: calc(var(--size) * 0.42);
-            background: linear-gradient(160deg, #ffe566, #f5d000);
-            border-radius: 8px;
-            top: 38%;
-            z-index: 4;
-            transform-origin: bottom center;
+            position: absolute; width: calc(var(--size) * 0.13); height: calc(var(--size) * 0.4);
+            border-radius: 8px; top: 42%; z-index: 4; transform-origin: bottom center;
         }
+        .type-mickey .arm, .type-minnie .arm { background: #111; }
+        .type-donald .arm, .type-daisy .arm { background: #f5d0b0; }
+        .type-goofy .arm { background: #111; }
+        .arm.left { left: 0; animation: armLeft 0.8s ease-in-out infinite alternate; }
+        .arm.right { right: 0; animation: armRight 0.8s ease-in-out infinite alternate-reverse; }
 
-        .arm.left {
-            left: -2%;
-            animation: armLeft 1s ease-in-out infinite alternate;
-        }
-
-        .arm.right {
-            right: -2%;
-            animation: armRight 1s ease-in-out infinite alternate-reverse;
-        }
-
-        @keyframes armLeft {
-            from { transform: rotate(-155deg); }
-            to { transform: rotate(-125deg); }
-        }
-
-        @keyframes armRight {
-            from { transform: rotate(155deg); }
-            to { transform: rotate(125deg); }
-        }
-
-        .leg {
-            position: absolute;
-            bottom: -10%;
-            width: calc(var(--size) * 0.17);
-            height: calc(var(--size) * 0.18);
-            background: #0d47a1;
-            border-radius: 0 0 5px 5px;
-        }
-
-        .leg.left { left: 20%; }
-        .leg.right { right: 20%; }
-
-        .shoe {
-            position: absolute;
-            bottom: -18%;
-            width: calc(var(--size) * 0.2);
-            height: calc(var(--size) * 0.09);
-            background: #212121;
-            border-radius: 50% 50% 3px 3px;
-        }
-
-        .shoe.left { left: 17%; }
-        .shoe.right { right: 17%; }
+        @keyframes headShake { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+        @keyframes yell { from { transform: translateX(-50%) scale(0.85); } to { transform: translateX(-50%) scale(1.25); } }
+        @keyframes armLeft { from { transform: rotate(-150deg); } to { transform: rotate(-120deg); } }
+        @keyframes armRight { from { transform: rotate(150deg); } to { transform: rotate(120deg); } }
 
         @keyframes crowdJump {
-            0%, 100% { transform: translateY(0) scaleX(1); }
-            35% { transform: translateY(calc(-1 * var(--bounce))) scaleX(1.05); }
-            55% { transform: translateY(calc(-1 * var(--bounce) * 0.6)) scaleX(0.98); }
-            75% { transform: translateY(calc(-1 * var(--bounce) * 0.9)) scaleX(1.03); }
+            0%, 100% { transform: translateY(0); }
+            40% { transform: translateY(calc(-1 * var(--bounce))); }
+            70% { transform: translateY(calc(-1 * var(--bounce) * 0.5)); }
         }
 
         .chant-bubble {
-            position: absolute;
-            color: #fff;
-            font-weight: 900;
-            font-size: calc(var(--size) * 0.28);
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
-            top: -20%;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            pointer-events: none;
-            white-space: nowrap;
+            position: absolute; top: -22%; left: 50%; transform: translateX(-50%);
+            color: #fff; font-weight: 900; font-size: calc(var(--size) * 0.26);
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.7); opacity: 0; pointer-events: none; white-space: nowrap;
         }
-
-        .minion.chanting .chant-bubble {
-            animation: bubblePop 0.8s ease-out;
-        }
-
+        .fan.chanting .chant-bubble { animation: bubblePop 0.7s ease-out; }
         @keyframes bubblePop {
-            0% { opacity: 0; transform: translateX(-50%) translateY(0) scale(0.5); }
-            30% { opacity: 1; transform: translateX(-50%) translateY(-8px) scale(1.2); }
-            100% { opacity: 0; transform: translateX(-50%) translateY(-20px) scale(1); }
+            0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+            25% { opacity: 1; transform: translateX(-50%) translateY(-6px) scale(1.15); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-18px) scale(1); }
         }
     </style>
 </head>
 <body>
-    <button type="button" id="startBtn">מיניונים</button>
-    <div class="minion-field" id="minionField">
+    <div class="crowd-field active" id="crowdField">
         <div class="stadium-lights"></div>
     </div>
 
     <script>
-        const startBtn = document.getElementById('startBtn');
-        const field = document.getElementById('minionField');
+        const field = document.getElementById('crowdField');
+        const TYPES = ['mickey', 'minnie', 'donald', 'goofy', 'daisy'];
+        const CHANT_EVERY_MS = 1000;
+        const CROWD_LAYERS = 14;
+        const GORI_CLIP_URLS = Array.from({length: 12}, (_, i) => `audio/gori-play-${i + 1}.mp3`);
+
         let isRunning = false;
-        let minions = [];
-        let audioCtx = null;
-        let noiseNode = null;
-        let chantRunning = false;
+        let fans = [];
+        let audioCtx, masterGain, reverbNode, crowdBus, chantBus, crowdNoiseGain;
         let chantInterval = null;
         let goriBuffers = [];
-        let goriLoaded = false;
 
-        const CHANT_EVERY_MS = 1000;
-        const CHANT_MS = 400;
-        const GORI_CLIP_URLS = [
-            'audio/gori-play-1.mp3',
-            'audio/gori-play-2.mp3',
-            'audio/gori-play-3.mp3',
-            'audio/gori-play-4.mp3'
-        ];
+        function makeReverbIR(seconds, decay) {
+            const rate = audioCtx.sampleRate;
+            const len = rate * seconds;
+            const buf = audioCtx.createBuffer(2, len, rate);
+            for (let c = 0; c < 2; c++) {
+                const ch = buf.getChannelData(c);
+                for (let i = 0; i < len; i++) {
+                    ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+                }
+            }
+            return buf;
+        }
+
+        function initAudio() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = 1.1;
+
+            reverbNode = audioCtx.createConvolver();
+            reverbNode.buffer = makeReverbIR(2.8, 2.2);
+            reverbNode.connect(masterGain);
+
+            crowdBus = audioCtx.createGain();
+            crowdBus.gain.value = 0.85;
+            crowdBus.connect(reverbNode);
+
+            chantBus = audioCtx.createGain();
+            chantBus.gain.value = 1.0;
+            chantBus.connect(reverbNode);
+            chantBus.connect(masterGain);
+
+            masterGain.connect(audioCtx.destination);
+
+            const bufLen = audioCtx.sampleRate * 3;
+            const noiseBuf = audioCtx.createBuffer(2, bufLen, audioCtx.sampleRate);
+            for (let c = 0; c < 2; c++) {
+                const d = noiseBuf.getChannelData(c);
+                for (let i = 0; i < bufLen; i++) d[i] = (Math.random() * 2 - 1) * 0.35;
+            }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = noiseBuf;
+            noise.loop = true;
+            const bp = audioCtx.createBiquadFilter();
+            bp.type = 'bandpass';
+            bp.frequency.value = 450;
+            bp.Q.value = 0.35;
+            crowdNoiseGain = audioCtx.createGain();
+            crowdNoiseGain.gain.value = 0.22;
+            noise.connect(bp).connect(crowdNoiseGain).connect(crowdBus);
+            noise.start();
+        }
 
         async function loadGoriClips() {
-            if (!audioCtx || goriLoaded) return;
-            goriBuffers = [];
+            if (goriBuffers.length) return;
             for (const url of GORI_CLIP_URLS) {
-                const res = await fetch(url);
-                const data = await res.arrayBuffer();
-                goriBuffers.push(await audioCtx.decodeAudioData(data));
+                try {
+                    const res = await fetch(url);
+                    goriBuffers.push(await audioCtx.decodeAudioData(await res.arrayBuffer()));
+                } catch (e) { /* skip missing */ }
             }
-            goriLoaded = true;
         }
 
-        function playHumanGoriVoice() {
+        function playStadiumCrowdChant() {
             if (!audioCtx || !goriBuffers.length) return;
 
-            const pick = function() {
-                return goriBuffers[Math.floor(Math.random() * goriBuffers.length)];
-            };
-
-            function playLayer(buffer, volume, rate, delay) {
-                const src = audioCtx.createBufferSource();
-                src.buffer = buffer;
-                src.playbackRate.value = rate;
-
-                const gain = audioCtx.createGain();
-                gain.gain.value = volume;
-
-                const warmth = audioCtx.createBiquadFilter();
-                warmth.type = 'peaking';
-                warmth.frequency.value = 2800;
-                warmth.Q.value = 0.8;
-                warmth.gain.value = 3;
-
-                src.connect(warmth).connect(gain).connect(audioCtx.destination);
-                src.start(audioCtx.currentTime + delay);
-            }
-
-            playLayer(pick(), 1.0, 0.97 + Math.random() * 0.06, 0);
-            playLayer(pick(), 0.55, 1.02 + Math.random() * 0.1, 0.04);
-            playLayer(pick(), 0.4, 0.93 + Math.random() * 0.08, 0.08);
-            playLayer(pick(), 0.35, 1.08 + Math.random() * 0.12, 0.02);
-        }
-
-        function startStadiumAudio() {
-            try {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const bufferSize = audioCtx.sampleRate * 2;
-                const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-                const data = noiseBuffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    data[i] = (Math.random() * 2 - 1) * 0.5;
-                }
-                noiseNode = audioCtx.createBufferSource();
-                noiseNode.buffer = noiseBuffer;
-                noiseNode.loop = true;
-                const filter = audioCtx.createBiquadFilter();
-                filter.type = 'bandpass';
-                filter.frequency.value = 600;
-                filter.Q.value = 0.4;
-                const gain = audioCtx.createGain();
-                gain.gain.value = 0.12;
-                noiseNode.connect(filter).connect(gain).connect(audioCtx.destination);
-                noiseNode.start();
-            } catch (e) { /* audio optional */ }
-        }
-
-        function playCrowdHit() {
-            if (!audioCtx || !isRunning) return;
             const t = audioCtx.currentTime;
-            const dur = CHANT_MS / 1000;
+            const pick = () => goriBuffers[Math.floor(Math.random() * goriBuffers.length)];
 
-            const osc = audioCtx.createOscillator();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(120, t);
-            osc.frequency.exponentialRampToValueAtTime(380, t + dur * 0.9);
+            for (let i = 0; i < CROWD_LAYERS; i++) {
+                const src = audioCtx.createBufferSource();
+                src.buffer = pick();
+                src.playbackRate.value = 0.88 + Math.random() * 0.28;
 
-            const oscGain = audioCtx.createGain();
-            oscGain.gain.setValueAtTime(0.08, t);
-            oscGain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+                const pan = audioCtx.createStereoPanner();
+                pan.pan.value = (Math.random() - 0.5) * 1.6;
 
-            osc.connect(oscGain).connect(audioCtx.destination);
-            osc.start(t);
-            osc.stop(t + dur);
+                const g = audioCtx.createGain();
+                g.gain.value = 0.25 + Math.random() * 0.45;
 
-            const stomp = audioCtx.createOscillator();
-            const stompG = audioCtx.createGain();
-            stomp.type = 'sine';
-            stomp.frequency.setValueAtTime(75, t);
-            stompG.gain.setValueAtTime(0.14, t);
-            stompG.gain.exponentialRampToValueAtTime(0.001, t + dur);
-            stomp.connect(stompG).connect(audioCtx.destination);
-            stomp.start(t);
-            stomp.stop(t + dur);
+                const delay = Math.random() * 0.09;
+                src.connect(pan).connect(g).connect(chantBus);
+                src.start(t + delay);
+            }
+
+            const swell = audioCtx.createOscillator();
+            const swellG = audioCtx.createGain();
+            swell.type = 'sine';
+            swell.frequency.setValueAtTime(90, t);
+            swell.frequency.exponentialRampToValueAtTime(200, t + 0.35);
+            swellG.gain.setValueAtTime(0.06, t);
+            swellG.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+            swell.connect(swellG).connect(crowdBus);
+            swell.start(t);
+            swell.stop(t + 0.42);
+
+            crowdNoiseGain.gain.setTargetAtTime(0.32, t, 0.05);
+            crowdNoiseGain.gain.setTargetAtTime(0.22, t + 0.5, 0.15);
         }
 
-        function triggerChantBubbles() {
-            if (!isRunning || minions.length === 0) return;
-            const batch = 2 + Math.floor(Math.random() * 3);
-            for (let i = 0; i < batch; i++) {
-                const m = minions[Math.floor(Math.random() * minions.length)];
-                m.classList.remove('chanting');
-                void m.offsetWidth;
-                m.classList.add('chanting');
+        function triggerBubbles() {
+            const n = 4 + Math.floor(Math.random() * 6);
+            for (let i = 0; i < n; i++) {
+                const f = fans[Math.floor(Math.random() * fans.length)];
+                if (!f) continue;
+                f.classList.remove('chanting');
+                void f.offsetWidth;
+                f.classList.add('chanting');
             }
         }
 
-        function shoutGoriBeat() {
-            if (!isRunning) return;
-
-            triggerChantBubbles();
-            playCrowdHit();
-            playHumanGoriVoice();
+        function shoutBeat() {
+            triggerBubbles();
+            playStadiumCrowdChant();
         }
 
-        function crowdChant() {
-            if (!isRunning || chantRunning) return;
-            chantRunning = true;
-            shoutGoriBeat();
-            chantInterval = setInterval(shoutGoriBeat, CHANT_EVERY_MS);
+        function startChant() {
+            shoutBeat();
+            chantInterval = setInterval(shoutBeat, CHANT_EVERY_MS);
         }
 
-        function calcMinionCount() {
-            const cellW = 42;
-            const cellH = 52;
+        function charHTML(type) {
+            const extras = {
+                mickey: '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div>',
+                minnie: '<div class="ear left"></div><div class="ear right"></div><div class="bow"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div>',
+                donald: '<div class="head"><div class="eye left"></div><div class="eye right"></div><div class="bill"></div><div class="mouth"></div></div>',
+                goofy: '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="snout"></div><div class="mouth"></div></div>',
+                daisy: '<div class="bow"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="bill"></div><div class="mouth"></div></div>'
+            };
+            return `<div class="fan-body type-${type}"><div class="chant-bubble">גורי!</div><div class="arm left"></div><div class="arm right"></div>${extras[type]}<div class="shirt"></div></div>`;
+        }
+
+        function fillScreen() {
+            fans = [];
+            field.querySelectorAll('.fan').forEach(el => el.remove());
+            const cellW = 46, cellH = 58;
             const cols = Math.ceil(window.innerWidth / cellW) + 1;
             const rows = Math.ceil(window.innerHeight / cellH) + 1;
-            return cols * rows;
-        }
-
-        function createMinion(col, row, cols, rows) {
-            const size = 28 + Math.random() * 14;
-            const cellW = window.innerWidth / cols;
-            const cellH = window.innerHeight / rows;
-            const left = col * cellW + (Math.random() - 0.5) * cellW * 0.4;
-            const top = row * cellH + (Math.random() - 0.5) * cellH * 0.3;
-            const bounce = 10 + Math.random() * 16;
-            const duration = 0.9 + Math.random() * 0.2;
-            const delay = Math.random() * 1.2;
-            const goggleTilt = (Math.random() - 0.5) * 16;
-
-            const el = document.createElement('div');
-            el.className = 'minion';
-            el.style.cssText = `
-                --size: ${size}px;
-                --bounce: ${bounce}px;
-                --goggle-tilt: ${goggleTilt}deg;
-                left: ${left}px;
-                top: ${top}px;
-                animation: crowdJump ${duration}s ease-in-out ${delay}s infinite;
-            `;
-
-            el.innerHTML = `
-                <div class="minion-body">
-                    <div class="chant-bubble">גורי!</div>
-                    <div class="arm left"></div>
-                    <div class="arm right"></div>
-                    <div class="minion-head">
-                        <div class="goggle-strap"></div>
-                        <div class="goggles">
-                            <div class="goggle-lens"></div>
-                            <div class="goggle-bridge"></div>
-                            <div class="goggle-lens"></div>
-                        </div>
-                        <div class="mouth"></div>
-                    </div>
-                    <div class="overalls"></div>
-                    <div class="leg left"></div>
-                    <div class="leg right"></div>
-                    <div class="shoe left"></div>
-                    <div class="shoe right"></div>
-                </div>
-            `;
-
-            field.appendChild(el);
-            return el;
-        }
-
-        function fillScreenWithMinions() {
-            minions = [];
-            const existing = field.querySelectorAll('.minion');
-            existing.forEach(function(m) { m.remove(); });
-
-            const count = calcMinionCount();
-            const cols = Math.ceil(Math.sqrt(count * (window.innerWidth / window.innerHeight)));
-            const rows = Math.ceil(count / cols);
+            const cellWidth = window.innerWidth / cols;
+            const cellHeight = window.innerHeight / rows;
 
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) {
-                    if (minions.length >= count) break;
-                    minions.push(createMinion(c, r, cols, rows));
+                    const type = TYPES[Math.floor(Math.random() * TYPES.length)];
+                    const size = 30 + Math.random() * 16;
+                    const el = document.createElement('div');
+                    el.className = `fan type-${type}`;
+                    el.style.cssText = `
+                        --size:${size}px; --bounce:${10 + Math.random() * 18}px;
+                        left:${c * cellWidth + (Math.random() - 0.5) * cellWidth * 0.35}px;
+                        top:${r * cellHeight + (Math.random() - 0.5) * cellHeight * 0.3}px;
+                        animation:crowdJump ${0.85 + Math.random() * 0.25}s ease-in-out ${Math.random() * 1.2}s infinite;
+                    `;
+                    el.innerHTML = charHTML(type);
+                    field.appendChild(el);
+                    fans.push(el);
                 }
             }
         }
@@ -503,38 +326,30 @@
         async function startExperience() {
             if (isRunning) return;
             isRunning = true;
-
-            startBtn.classList.add('hidden');
-            field.classList.add('active');
-
-            startStadiumAudio();
-            if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
+            fillScreen();
+            initAudio();
+            if (audioCtx.state === 'suspended') await audioCtx.resume();
             await loadGoriClips();
-
-            fillScreenWithMinions();
-            crowdChant();
+            startChant();
         }
 
-        startBtn.addEventListener('click', startExperience, { passive: false });
-        startBtn.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            startExperience();
-        }, { passive: false });
+        fillScreen();
+        startExperience();
 
-        window.addEventListener('resize', function() {
-            if (isRunning) fillScreenWithMinions();
-        });
+        document.body.addEventListener('pointerdown', function kick() {
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            document.body.removeEventListener('pointerdown', kick);
+        }, { once: true });
 
-        document.addEventListener('visibilitychange', function() {
+        window.addEventListener('resize', () => { if (isRunning) fillScreen(); });
+
+        document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
-                if (audioCtx && audioCtx.state === 'running') audioCtx.suspend();
                 if (chantInterval) { clearInterval(chantInterval); chantInterval = null; }
+                if (audioCtx) audioCtx.suspend();
             } else if (isRunning) {
-                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-                if (!chantInterval && chantRunning) {
-                    shoutGoriBeat();
-                    chantInterval = setInterval(shoutGoriBeat, CHANT_EVERY_MS);
-                }
+                audioCtx.resume();
+                if (!chantInterval) startChant();
             }
         });
     </script>
