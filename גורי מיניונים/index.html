@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>גורי מיניונים</title>
-    <meta name="description" content="גורי! קהל באצטדיון">
+    <meta name="description" content="גורי! קהל דיסני באצטדיון">
     <meta property="og:title" content="גורי מיניונים">
-    <meta property="og:description" content="גורי! קהל באצטדיון">
-    <meta property="og:type" content="website">
+    <meta property="og:description" content="גורי! קהל דיסני באצטדיון">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body { width: 100%; height: 100%; overflow: hidden; touch-action: manipulation; }
@@ -17,7 +16,6 @@
             position: fixed; inset: 0; overflow: hidden;
             background: linear-gradient(180deg, #2e7d32 0%, #1b5e20 55%, #0d3d12 100%);
         }
-
         .stadium-lights {
             position: absolute; inset: 0; pointer-events: none; z-index: 0;
             background:
@@ -30,101 +28,205 @@
             position: absolute; will-change: transform;
             filter: drop-shadow(1px 3px 5px rgba(0,0,0,0.35)); z-index: 2;
         }
-
-        .fan-body { position: relative; width: var(--size); height: calc(var(--size) * 1.5); }
+        .fan-body { position: relative; width: var(--size); height: calc(var(--size) * 1.55); }
 
         .ear {
-            position: absolute; width: calc(var(--size) * 0.42); height: calc(var(--size) * 0.42);
-            background: #111; border-radius: 50%; top: -8%; z-index: 1;
+            position: absolute; width: calc(var(--size) * 0.4); height: calc(var(--size) * 0.4);
+            border-radius: 50%; top: -6%; z-index: 1;
         }
-        .ear.left { left: 2%; }
-        .ear.right { right: 2%; }
+        .ear.left { left: 4%; }
+        .ear.right { right: 4%; }
 
         .head {
-            width: var(--size); height: calc(var(--size) * 0.9);
+            width: var(--size); height: calc(var(--size) * 0.88);
             border-radius: 50%; position: relative; z-index: 3;
             animation: headShake 0.35s ease-in-out infinite alternate;
         }
 
-        .type-mickey .head { background: radial-gradient(circle at 40% 35%, #4a4a4a, #1a1a1a); }
-        .type-minnie .head { background: radial-gradient(circle at 40% 35%, #4a4a4a, #1a1a1a); }
-        .type-donald .head { background: radial-gradient(circle at 40% 30%, #fff, #e8e8e8); }
-        .type-goofy .head { background: radial-gradient(circle at 40% 35%, #2d2d2d, #111); }
-        .type-daisy .head { background: radial-gradient(circle at 40% 35%, #fff, #f0e6d8); }
-
-        .bow {
-            position: absolute; top: -6%; left: 50%; transform: translateX(-50%);
-            width: calc(var(--size) * 0.55); height: calc(var(--size) * 0.22);
-            background: #e91e63; border-radius: 40%; z-index: 5;
-        }
-        .bow::before, .bow::after {
-            content: ''; position: absolute; top: 20%; width: 35%; height: 70%;
-            background: #e91e63; border-radius: 50%;
-        }
-        .bow::before { left: -18%; }
-        .bow::after { right: -18%; }
-
-        .bill {
-            position: absolute; bottom: 22%; left: 50%; transform: translateX(-50%);
-            width: calc(var(--size) * 0.5); height: calc(var(--size) * 0.18);
-            background: #ffb300; border-radius: 50% 50% 45% 45%; z-index: 4;
-        }
-
         .eye {
-            position: absolute; width: calc(var(--size) * 0.16); height: calc(var(--size) * 0.22);
-            background: #fff; border-radius: 50%; top: 32%; z-index: 4;
-            border: 2px solid #111;
+            position: absolute; width: calc(var(--size) * 0.15); height: calc(var(--size) * 0.2);
+            background: #fff; border-radius: 50%; top: 34%; z-index: 5; border: 2px solid #111;
         }
         .eye::after {
             content: ''; position: absolute; width: 55%; height: 55%;
-            background: #111; border-radius: 50%; bottom: 8%; left: 22%;
+            background: #111; border-radius: 50%; bottom: 10%; left: 22%;
         }
-        .eye.left { left: 22%; }
-        .eye.right { right: 22%; }
-
-        .type-donald .eye, .type-daisy .eye {
-            width: calc(var(--size) * 0.14); height: calc(var(--size) * 0.2); top: 30%;
-        }
-
-        .snout {
-            position: absolute; bottom: 18%; left: 50%; transform: translateX(-50%);
-            width: calc(var(--size) * 0.35); height: calc(var(--size) * 0.2);
-            background: #f5d0b0; border-radius: 50%; z-index: 4;
-        }
+        .eye.left { left: 24%; }
+        .eye.right { right: 24%; }
 
         .mouth {
-            position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%);
-            width: calc(var(--size) * 0.28); height: calc(var(--size) * 0.18);
+            position: absolute; bottom: 10%; left: 50%; transform: translateX(-50%);
+            width: calc(var(--size) * 0.26); height: calc(var(--size) * 0.16);
             background: #222; border-radius: 50%;
             animation: yell 0.45s ease-in-out infinite alternate;
         }
 
-        .shirt {
-            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-            width: calc(var(--size) * 0.8); height: calc(var(--size) * 0.55);
-            border-radius: 10px 10px 14px 14px; z-index: 2;
+        .bill {
+            position: absolute; bottom: 24%; left: 50%; transform: translateX(-50%);
+            width: calc(var(--size) * 0.48); height: calc(var(--size) * 0.17);
+            background: #ffb300; border-radius: 50% 50% 42% 42%; z-index: 4;
         }
-        .type-mickey .shirt { background: linear-gradient(180deg, #e53935, #b71c1c); }
-        .type-minnie .shirt { background: linear-gradient(180deg, #e91e63, #ad1457); }
-        .type-donald .shirt { background: linear-gradient(180deg, #1565c0, #0d47a1); }
-        .type-goofy .shirt { background: linear-gradient(180deg, #ff6f00, #e65100); }
-        .type-daisy .shirt { background: linear-gradient(180deg, #ab47bc, #7b1fa2); }
+
+        .bow, .crown, .cap {
+            position: absolute; left: 50%; transform: translateX(-50%); z-index: 6;
+        }
+        .bow {
+            top: -8%; width: calc(var(--size) * 0.5); height: calc(var(--size) * 0.2);
+            background: var(--accent, #e91e63); border-radius: 40%;
+        }
+        .bow::before, .bow::after {
+            content: ''; position: absolute; top: 18%; width: 36%; height: 72%;
+            background: var(--accent, #e91e63); border-radius: 50%;
+        }
+        .bow::before { left: -20%; }
+        .bow::after { right: -20%; }
+
+        .cap {
+            top: -10%; width: calc(var(--size) * 0.62); height: calc(var(--size) * 0.24);
+            background: var(--cap-color); border-radius: 45% 45% 10% 10%;
+        }
+
+        .crown {
+            top: -12%; width: calc(var(--size) * 0.55); height: calc(var(--size) * 0.22);
+            background: linear-gradient(180deg, #ffd700, #ff8f00);
+            clip-path: polygon(0% 100%, 15% 30%, 30% 100%, 50% 20%, 70% 100%, 85% 30%, 100% 100%);
+        }
+
+        .hair-bun {
+            position: absolute; top: -5%; left: 50%; transform: translateX(-50%);
+            width: calc(var(--size) * 0.35); height: calc(var(--size) * 0.3);
+            background: #1a1a1a; border-radius: 50%; z-index: 4;
+        }
+
+        .stripe {
+            position: absolute; inset: 0; border-radius: 50%;
+            background: repeating-linear-gradient(45deg, #e91e8c, #e91e8c 12%, #7b1fa2 12%, #7b1fa2 24%);
+            z-index: 2;
+        }
+
+        .grin {
+            position: absolute; bottom: 18%; left: 50%; transform: translateX(-50%);
+            width: calc(var(--size) * 0.55); height: calc(var(--size) * 0.12);
+            border-bottom: 4px solid #111; border-radius: 0 0 50% 50%; z-index: 5;
+        }
+
+        .snout {
+            position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%);
+            width: calc(var(--size) * 0.32); height: calc(var(--size) * 0.18);
+            background: #f5d0b0; border-radius: 50%; z-index: 4;
+        }
+
+        .shirt, .dress {
+            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: calc(var(--size) * 0.82); z-index: 2; border-radius: 10px 10px 14px 14px;
+        }
+        .shirt { height: calc(var(--size) * 0.52); }
+        .dress { height: calc(var(--size) * 0.58); }
 
         .arm {
-            position: absolute; width: calc(var(--size) * 0.13); height: calc(var(--size) * 0.4);
-            border-radius: 8px; top: 42%; z-index: 4; transform-origin: bottom center;
+            position: absolute; width: calc(var(--size) * 0.12); height: calc(var(--size) * 0.38);
+            border-radius: 8px; top: 44%; z-index: 4; transform-origin: bottom center;
+            background: var(--skin, #111);
         }
-        .type-mickey .arm, .type-minnie .arm { background: #111; }
-        .type-donald .arm, .type-daisy .arm { background: #f5d0b0; }
-        .type-goofy .arm { background: #111; }
-        .arm.left { left: 0; animation: armLeft 0.8s ease-in-out infinite alternate; }
-        .arm.right { right: 0; animation: armRight 0.8s ease-in-out infinite alternate-reverse; }
+        .arm.left { left: 2%; animation: armLeft 0.8s ease-in-out infinite alternate; }
+        .arm.right { right: 2%; animation: armRight 0.8s ease-in-out infinite alternate-reverse; }
+
+        .dots::after {
+            content: ''; position: absolute; inset: 15% 10%;
+            background-image: radial-gradient(circle, #fff 18%, transparent 20%);
+            background-size: 28% 35%; opacity: 0.7;
+        }
+
+        /* 18 Disney-style characters */
+        .type-mickey .ear, .type-mickey-bw .ear, .type-mickey-silver .ear { background: var(--skin, #111); }
+        .type-mickey .head { background: radial-gradient(circle at 40% 35%, #333, #111); }
+        .type-mickey .shirt { background: linear-gradient(180deg, #e53935, #b71c1c); }
+        .type-mickey-bw .head { background: radial-gradient(circle at 40% 35%, #888, #222); filter: grayscale(1); }
+        .type-mickey-bw .shirt { background: linear-gradient(180deg, #666, #333); }
+        .type-mickey-silver .head { background: linear-gradient(145deg, #e0e0e0, #9e9e9e, #bdbdbd); }
+        .type-mickey-silver .shirt { background: linear-gradient(180deg, #cfd8dc, #90a4ae); }
+
+        .type-minnie .ear { background: #111; }
+        .type-minnie .head { background: radial-gradient(circle at 40% 35%, #333, #111); }
+        .type-minnie { --accent: #e91e63; }
+        .type-minnie .shirt { background: linear-gradient(180deg, #e91e63, #ad1457); }
+        .type-minnie .dress { background: linear-gradient(180deg, #e53935, #c62828); }
+
+        .type-donald .head, .type-daisy .head, .type-huey .head, .type-dewey .head, .type-louie .head {
+            background: radial-gradient(circle at 40% 30%, #fff, #ececec);
+        }
+        .type-donald .arm, .type-daisy .arm, .type-huey .arm, .type-dewey .arm, .type-louie .arm { --skin: #f5d0b0; }
+        .type-donald .shirt { background: linear-gradient(180deg, #1565c0, #0d47a1); }
+        .type-daisy { --accent: #ab47bc; }
+        .type-daisy .shirt { background: linear-gradient(180deg, #ab47bc, #7b1fa2); }
+        .type-huey { --cap-color: #e53935; }
+        .type-huey .shirt { background: #e53935; }
+        .type-dewey { --cap-color: #1e88e5; }
+        .type-dewey .shirt { background: #1e88e5; }
+        .type-louie { --cap-color: #43a047; }
+        .type-louie .shirt { background: #43a047; }
+
+        .type-lilo .head { background: radial-gradient(circle at 45% 38%, #f5d0b0, #e0b48a); border-radius: 48% 48% 45% 45%; }
+        .type-lilo .arm { --skin: #f5d0b0; }
+        .type-lilo .dress {
+            background: linear-gradient(180deg, #e53935, #b71c1c);
+            background-image: radial-gradient(ellipse at 30% 40%, rgba(255,255,255,0.5) 8%, transparent 10%),
+                              linear-gradient(180deg, #e53935, #b71c1c);
+        }
+
+        .type-stitch .ear { background: #42a5f5; width: calc(var(--size) * 0.32); height: calc(var(--size) * 0.5); border-radius: 40%; top: 8%; }
+        .type-stitch .ear.left { transform: rotate(-25deg); left: -2%; }
+        .type-stitch .ear.right { transform: rotate(25deg); right: -2%; }
+        .type-stitch .head { background: radial-gradient(circle at 40% 35%, #64b5f6, #1e88e5); border-radius: 45%; height: calc(var(--size) * 0.82); }
+        .type-stitch .eye { background: #111; border: none; width: calc(var(--size) * 0.13); height: calc(var(--size) * 0.13); top: 38%; }
+        .type-stitch .eye::after { background: #fff; width: 35%; height: 35%; }
+        .type-stitch .shirt { background: linear-gradient(180deg, #1e88e5, #1565c0); }
+
+        .type-stitch-suit .ear { background: #42a5f5; width: calc(var(--size) * 0.3); height: calc(var(--size) * 0.48); border-radius: 40%; top: 8%; }
+        .type-stitch-suit .ear.left { transform: rotate(-25deg); }
+        .type-stitch-suit .ear.right { transform: rotate(25deg); }
+        .type-stitch-suit .head { background: radial-gradient(circle at 40% 35%, #64b5f6, #1e88e5); border-radius: 45%; }
+        .type-stitch-suit .shirt { background: linear-gradient(90deg, #e53935 50%, #1565c0 50%); }
+
+        .type-alice .head { background: radial-gradient(circle at 45% 38%, #ffe0b2, #ffcc80); border-radius: 48% 48% 44% 44%; }
+        .type-alice { --accent: #42a5f5; }
+        .type-alice .arm { --skin: #ffe0b2; }
+        .type-alice .dress { background: linear-gradient(180deg, #42a5f5, #1e88e5); height: calc(var(--size) * 0.62); }
+        .type-alice .dress::before {
+            content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 35%;
+            background: #fff; border-radius: 4px;
+        }
+
+        .type-queen .head { background: radial-gradient(circle at 45% 38%, #ffccbc, #ffab91); }
+        .type-queen .arm { --skin: #ffccbc; }
+        .type-queen .dress {
+            background: linear-gradient(180deg, #b71c1c 0%, #7f0000 40%, #ffd700 40%, #ff8f00 100%);
+            border-radius: 8px 8px 16px 16px;
+        }
+
+        .type-cheshire .head { background: transparent; overflow: visible; }
+        .type-cheshire .stripe { border-radius: 50%; }
+        .type-cheshire .arm { --skin: #e91e8c; }
+
+        .type-pooh .head { background: radial-gradient(circle at 40% 35%, #ffca28, #ffb300); }
+        .type-pooh .ear { background: #ffb300; }
+        .type-pooh .eye { border-color: #5d4037; }
+        .type-pooh .shirt { background: #e53935; height: calc(var(--size) * 0.38); border-radius: 8px; }
+
+        .type-roo .head { background: radial-gradient(circle at 40% 35%, #ffca28, #ffb300); border-radius: 50% 50% 45% 45%; height: calc(var(--size) * 0.72); }
+        .type-roo .ear { background: #ffb300; width: calc(var(--size) * 0.28); height: calc(var(--size) * 0.28); }
+        .type-roo .shirt { background: #42a5f5; height: calc(var(--size) * 0.35); }
+
+        .type-eeyore .head { background: radial-gradient(circle at 40% 35%, #9e9e9e, #616161); border-radius: 45% 50% 40% 40%; }
+        .type-eeyore .ear { background: #757575; width: calc(var(--size) * 0.22); height: calc(var(--size) * 0.55); border-radius: 30%; top: 5%; }
+        .type-eeyore .ear.left { transform: rotate(-15deg); left: 8%; }
+        .type-eeyore .ear.right { transform: rotate(15deg); right: 8%; }
+        .type-eeyore .shirt { background: #ff80ab; height: calc(var(--size) * 0.3); }
 
         @keyframes headShake { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
         @keyframes yell { from { transform: translateX(-50%) scale(0.85); } to { transform: translateX(-50%) scale(1.25); } }
         @keyframes armLeft { from { transform: rotate(-150deg); } to { transform: rotate(-120deg); } }
         @keyframes armRight { from { transform: rotate(150deg); } to { transform: rotate(120deg); } }
-
         @keyframes crowdJump {
             0%, 100% { transform: translateY(0); }
             40% { transform: translateY(calc(-1 * var(--bounce))); }
@@ -133,7 +235,7 @@
 
         .chant-bubble {
             position: absolute; top: -22%; left: 50%; transform: translateX(-50%);
-            color: #fff; font-weight: 900; font-size: calc(var(--size) * 0.26);
+            color: #fff; font-weight: 900; font-size: calc(var(--size) * 0.24);
             text-shadow: 1px 1px 4px rgba(0,0,0,0.7); opacity: 0; pointer-events: none; white-space: nowrap;
         }
         .fan.chanting .chant-bubble { animation: bubblePop 0.7s ease-out; }
@@ -151,26 +253,47 @@
 
     <script>
         const field = document.getElementById('crowdField');
-        const TYPES = ['mickey', 'minnie', 'donald', 'goofy', 'daisy'];
+        const TYPES = [
+            'mickey-silver', 'mickey-bw', 'mickey', 'minnie', 'donald', 'daisy',
+            'huey', 'dewey', 'louie', 'lilo', 'stitch', 'stitch-suit',
+            'alice', 'queen', 'cheshire', 'pooh', 'roo', 'eeyore'
+        ];
+
+        const CHAR_PARTS = {
+            'mickey':        '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="shirt"></div>',
+            'mickey-bw':     '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="shirt"></div>',
+            'mickey-silver': '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="shirt"></div>',
+            'minnie':        '<div class="ear left"></div><div class="ear right"></div><div class="bow"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="dress dots"></div>',
+            'donald':        '<div class="head"><div class="eye left"></div><div class="eye right"></div><div class="bill"></div><div class="mouth"></div></div><div class="shirt"></div>',
+            'daisy':         '<div class="bow"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="bill"></div><div class="mouth"></div></div><div class="shirt"></div>',
+            'huey':          '<div class="cap"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="bill"></div><div class="mouth"></div></div><div class="shirt"></div>',
+            'dewey':         '<div class="cap"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="bill"></div><div class="mouth"></div></div><div class="shirt"></div>',
+            'louie':         '<div class="cap"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="bill"></div><div class="mouth"></div></div><div class="shirt"></div>',
+            'lilo':          '<div class="hair-bun"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="dress"></div>',
+            'stitch':        '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="shirt"></div>',
+            'stitch-suit':   '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="shirt"></div>',
+            'alice':         '<div class="bow"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="dress"></div>',
+            'queen':         '<div class="crown"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="dress"></div>',
+            'cheshire':      '<div class="head"><div class="stripe"></div><div class="eye left"></div><div class="eye right"></div><div class="grin"></div></div><div class="shirt"></div>',
+            'pooh':          '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="shirt"></div>',
+            'roo':           '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="shirt"></div>',
+            'eeyore':        '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="shirt"></div>'
+        };
+
         const CHANT_EVERY_MS = 1000;
         const CROWD_LAYERS = 14;
         const GORI_CLIP_URLS = Array.from({length: 12}, (_, i) => `audio/gori-play-${i + 1}.mp3`);
 
-        let isRunning = false;
-        let fans = [];
+        let isRunning = false, fans = [];
         let audioCtx, masterGain, reverbNode, crowdBus, chantBus, crowdNoiseGain;
-        let chantInterval = null;
-        let goriBuffers = [];
+        let chantInterval = null, goriBuffers = [];
 
         function makeReverbIR(seconds, decay) {
-            const rate = audioCtx.sampleRate;
-            const len = rate * seconds;
+            const rate = audioCtx.sampleRate, len = rate * seconds;
             const buf = audioCtx.createBuffer(2, len, rate);
             for (let c = 0; c < 2; c++) {
                 const ch = buf.getChannelData(c);
-                for (let i = 0; i < len; i++) {
-                    ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
-                }
+                for (let i = 0; i < len; i++) ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
             }
             return buf;
         }
@@ -178,23 +301,18 @@
         function initAudio() {
             if (audioCtx) return;
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
             masterGain = audioCtx.createGain();
             masterGain.gain.value = 1.1;
-
             reverbNode = audioCtx.createConvolver();
             reverbNode.buffer = makeReverbIR(2.8, 2.2);
             reverbNode.connect(masterGain);
-
             crowdBus = audioCtx.createGain();
             crowdBus.gain.value = 0.85;
             crowdBus.connect(reverbNode);
-
             chantBus = audioCtx.createGain();
             chantBus.gain.value = 1.0;
             chantBus.connect(reverbNode);
             chantBus.connect(masterGain);
-
             masterGain.connect(audioCtx.destination);
 
             const bufLen = audioCtx.sampleRate * 3;
@@ -222,50 +340,31 @@
                 try {
                     const res = await fetch(url);
                     goriBuffers.push(await audioCtx.decodeAudioData(await res.arrayBuffer()));
-                } catch (e) { /* skip missing */ }
+                } catch (e) { /* skip */ }
             }
         }
 
         function playStadiumCrowdChant() {
             if (!audioCtx || !goriBuffers.length) return;
-
             const t = audioCtx.currentTime;
             const pick = () => goriBuffers[Math.floor(Math.random() * goriBuffers.length)];
-
             for (let i = 0; i < CROWD_LAYERS; i++) {
                 const src = audioCtx.createBufferSource();
                 src.buffer = pick();
                 src.playbackRate.value = 0.88 + Math.random() * 0.28;
-
                 const pan = audioCtx.createStereoPanner();
                 pan.pan.value = (Math.random() - 0.5) * 1.6;
-
                 const g = audioCtx.createGain();
                 g.gain.value = 0.25 + Math.random() * 0.45;
-
-                const delay = Math.random() * 0.09;
                 src.connect(pan).connect(g).connect(chantBus);
-                src.start(t + delay);
+                src.start(t + Math.random() * 0.09);
             }
-
-            const swell = audioCtx.createOscillator();
-            const swellG = audioCtx.createGain();
-            swell.type = 'sine';
-            swell.frequency.setValueAtTime(90, t);
-            swell.frequency.exponentialRampToValueAtTime(200, t + 0.35);
-            swellG.gain.setValueAtTime(0.06, t);
-            swellG.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
-            swell.connect(swellG).connect(crowdBus);
-            swell.start(t);
-            swell.stop(t + 0.42);
-
             crowdNoiseGain.gain.setTargetAtTime(0.32, t, 0.05);
             crowdNoiseGain.gain.setTargetAtTime(0.22, t + 0.5, 0.15);
         }
 
         function triggerBubbles() {
-            const n = 4 + Math.floor(Math.random() * 6);
-            for (let i = 0; i < n; i++) {
+            for (let i = 0; i < 4 + Math.floor(Math.random() * 6); i++) {
                 const f = fans[Math.floor(Math.random() * fans.length)];
                 if (!f) continue;
                 f.classList.remove('chanting');
@@ -274,46 +373,31 @@
             }
         }
 
-        function shoutBeat() {
-            triggerBubbles();
-            playStadiumCrowdChant();
-        }
-
-        function startChant() {
-            shoutBeat();
-            chantInterval = setInterval(shoutBeat, CHANT_EVERY_MS);
-        }
+        function shoutBeat() { triggerBubbles(); playStadiumCrowdChant(); }
+        function startChant() { shoutBeat(); chantInterval = setInterval(shoutBeat, CHANT_EVERY_MS); }
 
         function charHTML(type) {
-            const extras = {
-                mickey: '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div>',
-                minnie: '<div class="ear left"></div><div class="ear right"></div><div class="bow"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div>',
-                donald: '<div class="head"><div class="eye left"></div><div class="eye right"></div><div class="bill"></div><div class="mouth"></div></div>',
-                goofy: '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="snout"></div><div class="mouth"></div></div>',
-                daisy: '<div class="bow"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="bill"></div><div class="mouth"></div></div>'
-            };
-            return `<div class="fan-body type-${type}"><div class="chant-bubble">גורי!</div><div class="arm left"></div><div class="arm right"></div>${extras[type]}<div class="shirt"></div></div>`;
+            return `<div class="fan-body type-${type}"><div class="chant-bubble">גורי!</div><div class="arm left"></div><div class="arm right"></div>${CHAR_PARTS[type]}</div>`;
         }
 
         function fillScreen() {
             fans = [];
             field.querySelectorAll('.fan').forEach(el => el.remove());
-            const cellW = 46, cellH = 58;
-            const cols = Math.ceil(window.innerWidth / cellW) + 1;
-            const rows = Math.ceil(window.innerHeight / cellH) + 1;
-            const cellWidth = window.innerWidth / cols;
-            const cellHeight = window.innerHeight / rows;
+            const cols = Math.ceil(window.innerWidth / 44) + 1;
+            const rows = Math.ceil(window.innerHeight / 56) + 1;
+            const cellW = window.innerWidth / cols;
+            const cellH = window.innerHeight / rows;
 
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) {
                     const type = TYPES[Math.floor(Math.random() * TYPES.length)];
-                    const size = 30 + Math.random() * 16;
+                    const size = 28 + Math.random() * 14;
                     const el = document.createElement('div');
                     el.className = `fan type-${type}`;
                     el.style.cssText = `
-                        --size:${size}px; --bounce:${10 + Math.random() * 18}px;
-                        left:${c * cellWidth + (Math.random() - 0.5) * cellWidth * 0.35}px;
-                        top:${r * cellHeight + (Math.random() - 0.5) * cellHeight * 0.3}px;
+                        --size:${size}px; --bounce:${10 + Math.random() * 16}px;
+                        left:${c * cellW + (Math.random() - 0.5) * cellW * 0.35}px;
+                        top:${r * cellH + (Math.random() - 0.5) * cellH * 0.28}px;
                         animation:crowdJump ${0.85 + Math.random() * 0.25}s ease-in-out ${Math.random() * 1.2}s infinite;
                     `;
                     el.innerHTML = charHTML(type);
@@ -336,13 +420,11 @@
         fillScreen();
         startExperience();
 
-        document.body.addEventListener('pointerdown', function kick() {
+        document.body.addEventListener('pointerdown', () => {
             if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-            document.body.removeEventListener('pointerdown', kick);
         }, { once: true });
 
         window.addEventListener('resize', () => { if (isRunning) fillScreen(); });
-
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 if (chantInterval) { clearInterval(chantInterval); chantInterval = null; }
