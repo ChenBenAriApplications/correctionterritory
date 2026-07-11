@@ -290,37 +290,63 @@
         const startBtn = document.getElementById('startBtn');
         const field = document.getElementById('minionField');
         let isRunning = false;
-        let voices = [];
         let minions = [];
         let audioCtx = null;
         let noiseNode = null;
         let chantRunning = false;
         let chantInterval = null;
+        let goriBuffers = [];
+        let goriLoaded = false;
 
         const CHANT_EVERY_MS = 1000;
         const CHANT_MS = 400;
+        const GORI_CLIP_URLS = [
+            'audio/gori-play-1.mp3',
+            'audio/gori-play-2.mp3',
+            'audio/gori-play-3.mp3',
+            'audio/gori-play-4.mp3'
+        ];
 
-        function loadVoices() {
-            voices = speechSynthesis.getVoices();
-        }
-        if ('speechSynthesis' in window) {
-            speechSynthesis.onvoiceschanged = loadVoices;
-            loadVoices();
-        }
-
-        function getHebrewVoice() {
-            return voices.find(v => v.lang.startsWith('he')) ||
-                   voices.find(v => v.lang.includes('he')) ||
-                   voices[0];
+        async function loadGoriClips() {
+            if (!audioCtx || goriLoaded) return;
+            goriBuffers = [];
+            for (const url of GORI_CLIP_URLS) {
+                const res = await fetch(url);
+                const data = await res.arrayBuffer();
+                goriBuffers.push(await audioCtx.decodeAudioData(data));
+            }
+            goriLoaded = true;
         }
 
-        function unlockSpeech() {
-            if (!('speechSynthesis' in window)) return;
-            speechSynthesis.resume();
-            const silent = new SpeechSynthesisUtterance('\u200b');
-            silent.volume = 0.01;
-            silent.rate = 10;
-            speechSynthesis.speak(silent);
+        function playHumanGoriVoice() {
+            if (!audioCtx || !goriBuffers.length) return;
+
+            const pick = function() {
+                return goriBuffers[Math.floor(Math.random() * goriBuffers.length)];
+            };
+
+            function playLayer(buffer, volume, rate, delay) {
+                const src = audioCtx.createBufferSource();
+                src.buffer = buffer;
+                src.playbackRate.value = rate;
+
+                const gain = audioCtx.createGain();
+                gain.gain.value = volume;
+
+                const warmth = audioCtx.createBiquadFilter();
+                warmth.type = 'peaking';
+                warmth.frequency.value = 2800;
+                warmth.Q.value = 0.8;
+                warmth.gain.value = 3;
+
+                src.connect(warmth).connect(gain).connect(audioCtx.destination);
+                src.start(audioCtx.currentTime + delay);
+            }
+
+            playLayer(pick(), 1.0, 0.97 + Math.random() * 0.06, 0);
+            playLayer(pick(), 0.55, 1.02 + Math.random() * 0.1, 0.04);
+            playLayer(pick(), 0.4, 0.93 + Math.random() * 0.08, 0.08);
+            playLayer(pick(), 0.35, 1.08 + Math.random() * 0.12, 0.02);
         }
 
         function startStadiumAudio() {
@@ -387,39 +413,15 @@
         }
 
         function shoutGoriBeat() {
-            if (!isRunning || !('speechSynthesis' in window)) return;
+            if (!isRunning) return;
 
             triggerChantBubbles();
             playCrowdHit();
-            speechSynthesis.cancel();
-
-            const voice = getHebrewVoice();
-            const cutoff = setTimeout(function() { speechSynthesis.cancel(); }, CHANT_MS);
-
-            const u1 = new SpeechSynthesisUtterance('גו');
-            u1.lang = 'he-IL';
-            u1.rate = 4.2;
-            u1.pitch = 0.62;
-            u1.volume = 1;
-            if (voice) u1.voice = voice;
-
-            u1.onend = function() {
-                const u2 = new SpeechSynthesisUtterance('רי!');
-                u2.lang = 'he-IL';
-                u2.rate = 4.8;
-                u2.pitch = 1.38;
-                u2.volume = 1;
-                if (voice) u2.voice = voice;
-                u2.onend = function() { clearTimeout(cutoff); };
-                u2.onerror = function() { clearTimeout(cutoff); };
-                speechSynthesis.speak(u2);
-            };
-            u1.onerror = function() { clearTimeout(cutoff); };
-            speechSynthesis.speak(u1);
+            playHumanGoriVoice();
         }
 
         function crowdChant() {
-            if (!isRunning || chantRunning || !('speechSynthesis' in window)) return;
+            if (!isRunning || chantRunning) return;
             chantRunning = true;
             shoutGoriBeat();
             chantInterval = setInterval(shoutGoriBeat, CHANT_EVERY_MS);
@@ -498,16 +500,18 @@
             }
         }
 
-        function startExperience() {
+        async function startExperience() {
             if (isRunning) return;
             isRunning = true;
 
-            unlockSpeech();
             startBtn.classList.add('hidden');
             field.classList.add('active');
 
-            fillScreenWithMinions();
             startStadiumAudio();
+            if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
+            await loadGoriClips();
+
+            fillScreenWithMinions();
             crowdChant();
         }
 
@@ -527,7 +531,6 @@
                 if (chantInterval) { clearInterval(chantInterval); chantInterval = null; }
             } else if (isRunning) {
                 if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-                if ('speechSynthesis' in window) speechSynthesis.resume();
                 if (!chantInterval && chantRunning) {
                     shoutGoriBeat();
                     chantInterval = setInterval(shoutGoriBeat, CHANT_EVERY_MS);
