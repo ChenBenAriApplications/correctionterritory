@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>גורי מיניונים</title>
+    <meta name="description" content="גורי! מיניונים חמודים באצטדיון">
+    <meta property="og:title" content="גורי מיניונים">
+    <meta property="og:description" content="גורי! מיניונים חמודים באצטדיון">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { width: 100%; height: 100%; overflow: hidden; touch-action: manipulation; }
+        body { background: #1b5e20; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
+
+        #startOverlay {
+            position: fixed; inset: 0; z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.55);
+            cursor: pointer;
+        }
+        #startOverlay.hidden { display: none; }
+        #startBtn {
+            border: none; cursor: pointer;
+            background: linear-gradient(135deg, #ffe566, #f5d000);
+            color: #333; font-size: clamp(1.6rem, 7vw, 2.8rem);
+            font-weight: bold; padding: 22px 48px; border-radius: 50px;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+            animation: btnBounce 1s ease-in-out infinite;
+            -webkit-appearance: none; appearance: none;
+        }
+        @keyframes btnBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .crowd-field {
+            position: fixed; inset: 0; overflow: hidden;
+            background: linear-gradient(180deg, #87ceeb 0%, #4fc3f7 45%, #29b6f6 100%);
+            display: none;
+        }
+        .crowd-field.active { display: block; }
+        .stadium-lights {
+            position: absolute; inset: 0; pointer-events: none; z-index: 0;
+            background:
+                radial-gradient(ellipse at 15% 0%, rgba(255,255,200,0.4) 0%, transparent 45%),
+                radial-gradient(ellipse at 85% 0%, rgba(255,255,200,0.4) 0%, transparent 45%),
+                radial-gradient(ellipse at 50% 100%, rgba(0,0,0,0.35) 0%, transparent 60%);
+        }
+
+        .minion {
+            position: absolute; will-change: transform;
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); z-index: 2;
+        }
+
+        .minion-body {
+            position: relative;
+            width: var(--size);
+            height: calc(var(--size) * 1.4);
+        }
+
+        .minion-head {
+            width: var(--size);
+            height: calc(var(--size) * 0.88);
+            background: linear-gradient(160deg, #ffe566 0%, #f5d000 50%, #e6c200 100%);
+            border-radius: 50% 50% 45% 45%;
+            position: relative;
+            z-index: 3;
+            animation: headShake 0.35s ease-in-out infinite alternate;
+        }
+
+        .goggle-strap {
+            position: absolute; top: 30%; left: -10%; right: -10%;
+            height: calc(var(--size) * 0.09); background: #424242;
+            border-radius: 4px; z-index: 1;
+        }
+
+        .goggles {
+            position: absolute; top: 26%; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 2px; z-index: 4;
+        }
+
+        .goggle-lens {
+            width: calc(var(--size) * 0.33);
+            height: calc(var(--size) * 0.33);
+            background: radial-gradient(circle at 35% 35%, #e8e8e8, #9e9e9e 60%, #616161);
+            border-radius: 50%; border: 3px solid #424242;
+            position: relative; overflow: hidden;
+        }
+
+        .goggle-lens::after {
+            content: ''; position: absolute; width: 38%; height: 38%;
+            background: #1a1a2e; border-radius: 50%; top: 38%; left: 32%;
+        }
+
+        .goggle-bridge {
+            width: calc(var(--size) * 0.07); height: calc(var(--size) * 0.11);
+            background: #424242; align-self: center; border-radius: 2px;
+        }
+
+        .mouth {
+            position: absolute; bottom: 14%; left: 50%; transform: translateX(-50%);
+            width: calc(var(--size) * 0.34); height: calc(var(--size) * 0.2);
+            background: #2d2d2d; border-radius: 50%;
+            animation: yell 0.45s ease-in-out infinite alternate;
+        }
+
+        .overalls {
+            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: calc(var(--size) * 0.78); height: calc(var(--size) * 0.52);
+            background: linear-gradient(180deg, #1565c0, #0d47a1);
+            border-radius: 8px 8px 12px 12px; z-index: 2;
+        }
+
+        .overalls::before {
+            content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: calc(var(--size) * 0.2); height: 55%; background: #0d47a1;
+            border-radius: 0 0 4px 4px;
+        }
+
+        .pocket {
+            position: absolute; bottom: 14%; left: 50%; transform: translateX(-50%);
+            width: calc(var(--size) * 0.28); height: calc(var(--size) * 0.16);
+            border: 2px solid #0a3d7a; border-radius: 4px;
+            background: rgba(255,255,255,0.12);
+        }
+
+        .arm {
+            position: absolute; width: calc(var(--size) * 0.13); height: calc(var(--size) * 0.4);
+            background: linear-gradient(160deg, #ffe566, #f5d000);
+            border-radius: 8px; top: 42%; z-index: 4; transform-origin: bottom center;
+        }
+        .arm.left { left: 0; animation: armLeft 0.8s ease-in-out infinite alternate; }
+        .arm.right { right: 0; animation: armRight 0.8s ease-in-out infinite alternate-reverse; }
+
+        .leg {
+            position: absolute; bottom: -10%; width: calc(var(--size) * 0.17);
+            height: calc(var(--size) * 0.18); background: #0d47a1;
+            border-radius: 0 0 5px 5px;
+        }
+        .leg.left { left: 20%; }
+        .leg.right { right: 20%; }
+
+        .shoe {
+            position: absolute; bottom: -18%; width: calc(var(--size) * 0.2);
+            height: calc(var(--size) * 0.09); background: #212121;
+            border-radius: 50% 50% 3px 3px;
+        }
+        .shoe.left { left: 17%; }
+        .shoe.right { right: 17%; }
+
+        @keyframes headShake { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+        @keyframes yell { from { transform: translateX(-50%) scale(0.85); } to { transform: translateX(-50%) scale(1.2); } }
+        @keyframes armLeft { from { transform: rotate(-150deg); } to { transform: rotate(-120deg); } }
+        @keyframes armRight { from { transform: rotate(150deg); } to { transform: rotate(120deg); } }
+        @keyframes crowdJump {
+            0%, 100% { transform: translateY(0); }
+            40% { transform: translateY(calc(-1 * var(--bounce))); }
+            70% { transform: translateY(calc(-1 * var(--bounce) * 0.5)); }
+        }
+
+        .chant-bubble {
+            position: absolute; top: -22%; left: 50%; transform: translateX(-50%);
+            color: #d32f2f; font-weight: 900; font-size: calc(var(--size) * 0.22);
+            background: #fff; padding: 2px 8px; border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2); opacity: 0;
+            pointer-events: none; white-space: nowrap;
+        }
+        .minion.chanting .chant-bubble { animation: bubblePop 0.7s ease-out; }
+        @keyframes bubblePop {
+            0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+            25% { opacity: 1; transform: translateX(-50%) translateY(-6px) scale(1.15); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-18px) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div id="startOverlay">
+        <button type="button" id="startBtn">🍌 לחצו לגורי מיניונים!</button>
+    </div>
+    <div class="crowd-field" id="crowdField">
+        <div class="stadium-lights"></div>
+    </div>
+
+    <script>
+        const field = document.getElementById('crowdField');
+
+        const CHANT_EVERY_MS = 1400;
+        const CROWD_LAYERS = 8;
+        const GORI_CLIP_URLS = Array.from({length: 12}, (_, i) => `audio/gori-play-${i + 1}.mp3`);
+
+        let isRunning = false, minions = [];
+        let audioCtx, masterGain, crowdNoiseGain, chantDestination;
+        let chantInterval = null, goriBuffers = [];
+        let useFallbackAudio = false;
+        const startOverlay = document.getElementById('startOverlay');
+        const startBtn = document.getElementById('startBtn');
+
+        function initAudio() {
+            if (audioCtx) return;
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if (!Ctx) { useFallbackAudio = true; return; }
+
+            audioCtx = new Ctx();
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = 1.8;
+            masterGain.connect(audioCtx.destination);
+            chantDestination = masterGain;
+
+            const bufLen = audioCtx.sampleRate * 3;
+            const noiseBuf = audioCtx.createBuffer(2, bufLen, audioCtx.sampleRate);
+            for (let c = 0; c < 2; c++) {
+                const d = noiseBuf.getChannelData(c);
+                for (let i = 0; i < bufLen; i++) d[i] = (Math.random() * 2 - 1) * 0.3;
+            }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = noiseBuf;
+            noise.loop = true;
+            const bp = audioCtx.createBiquadFilter();
+            bp.type = 'bandpass';
+            bp.frequency.value = 500;
+            crowdNoiseGain = audioCtx.createGain();
+            crowdNoiseGain.gain.value = 0.18;
+            noise.connect(bp).connect(crowdNoiseGain).connect(masterGain);
+            noise.start();
+        }
+
+        async function loadGoriClips() {
+            if (goriBuffers.length || useFallbackAudio || !audioCtx) return;
+            for (const url of GORI_CLIP_URLS) {
+                try {
+                    const res = await fetch(url);
+                    if (!res.ok) continue;
+                    const data = await res.arrayBuffer();
+                    const buf = await audioCtx.decodeAudioData(data);
+                    goriBuffers.push(buf);
+                } catch (e) {
+                    console.warn('clip load failed', url, e);
+                }
+            }
+            if (!goriBuffers.length) useFallbackAudio = true;
+            window.__goriBuffersCount = goriBuffers.length;
+            window.__useFallbackAudio = useFallbackAudio;
+            if (audioCtx) window.__audioCtxState = audioCtx.state;
+        }
+
+        function playVoiceLayer(buffer, volume, rate, pan, delay) {
+            const src = audioCtx.createBufferSource();
+            src.buffer = buffer;
+            src.playbackRate.value = rate;
+            const g = audioCtx.createGain();
+            g.gain.value = volume;
+            try {
+                const p = audioCtx.createStereoPanner();
+                p.pan.value = pan;
+                src.connect(g).connect(p).connect(chantDestination);
+            } catch (e) {
+                src.connect(g).connect(chantDestination);
+            }
+            src.start(audioCtx.currentTime + delay);
+        }
+
+        function playWebAudioChant() {
+            const pick = () => goriBuffers[Math.floor(Math.random() * goriBuffers.length)];
+            for (let i = 0; i < CROWD_LAYERS; i++) {
+                playVoiceLayer(
+                    pick(),
+                    0.65 + Math.random() * 0.25,
+                    0.97 + Math.random() * 0.06,
+                    (Math.random() - 0.5) * 1.0,
+                    Math.random() * 0.15
+                );
+            }
+            if (crowdNoiseGain) {
+                const t = audioCtx.currentTime;
+                crowdNoiseGain.gain.setTargetAtTime(0.28, t, 0.04);
+                crowdNoiseGain.gain.setTargetAtTime(0.18, t + 0.45, 0.12);
+            }
+        }
+
+        function playFallbackChant() {
+            const count = 6 + Math.floor(Math.random() * 3);
+            for (let i = 0; i < count; i++) {
+                const url = GORI_CLIP_URLS[Math.floor(Math.random() * GORI_CLIP_URLS.length)];
+                const a = new Audio(url);
+                a.volume = 0.65 + Math.random() * 0.25;
+                a.playbackRate = 0.96 + Math.random() * 0.08;
+                setTimeout(() => { a.play().catch(() => {}); }, i * 60);
+            }
+        }
+
+        function playStadiumCrowdChant() {
+            if (useFallbackAudio || !goriBuffers.length) {
+                playFallbackChant();
+                return;
+            }
+            if (audioCtx.state === 'suspended') return;
+            playWebAudioChant();
+        }
+
+        function triggerBubbles() {
+            for (let i = 0; i < 3 + Math.floor(Math.random() * 4); i++) {
+                const m = minions[Math.floor(Math.random() * minions.length)];
+                if (!m) continue;
+                m.classList.remove('chanting');
+                void m.offsetWidth;
+                m.classList.add('chanting');
+            }
+        }
+
+        function shoutBeat() { triggerBubbles(); playStadiumCrowdChant(); }
+        function startChant() { shoutBeat(); chantInterval = setInterval(shoutBeat, CHANT_EVERY_MS); }
+
+        function minionHTML() {
+            return `<div class="minion-body">
+                <div class="chant-bubble">גורי!</div>
+                <div class="arm left"></div>
+                <div class="arm right"></div>
+                <div class="minion-head">
+                    <div class="goggle-strap"></div>
+                    <div class="goggles">
+                        <div class="goggle-lens"></div>
+                        <div class="goggle-bridge"></div>
+                        <div class="goggle-lens"></div>
+                    </div>
+                    <div class="mouth"></div>
+                </div>
+                <div class="overalls"><div class="pocket"></div></div>
+                <div class="leg left"></div>
+                <div class="leg right"></div>
+                <div class="shoe left"></div>
+                <div class="shoe right"></div>
+            </div>`;
+        }
+
+        function fillScreen() {
+            minions = [];
+            field.querySelectorAll('.minion').forEach(el => el.remove());
+
+            const minionW = 78;
+            const minionH = 95;
+            const cols = Math.max(3, Math.ceil(window.innerWidth / minionW));
+            const rows = Math.max(3, Math.ceil(window.innerHeight / minionH));
+            const cellW = window.innerWidth / cols;
+            const cellH = window.innerHeight / rows;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const size = 50 + Math.random() * 18;
+                    const el = document.createElement('div');
+                    el.className = 'minion';
+                    el.style.cssText = `
+                        --size:${size}px;
+                        --bounce:${14 + Math.random() * 20}px;
+                        left:${c * cellW + (Math.random() - 0.5) * cellW * 0.3}px;
+                        top:${r * cellH + (Math.random() - 0.5) * cellH * 0.25}px;
+                        animation:crowdJump ${0.85 + Math.random() * 0.25}s ease-in-out ${Math.random() * 1.2}s infinite;
+                    `;
+                    el.innerHTML = minionHTML();
+                    field.appendChild(el);
+                    minions.push(el);
+                }
+            }
+        }
+
+        async function startExperience() {
+            if (isRunning) return;
+            isRunning = true;
+
+            startOverlay.classList.add('hidden');
+            field.classList.add('active');
+            fillScreen();
+
+            initAudio();
+            if (audioCtx) {
+                await audioCtx.resume();
+            }
+            await loadGoriClips();
+
+            playStadiumCrowdChant();
+            startChant();
+        }
+
+        function onStart(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            startExperience();
+        }
+
+        startBtn.addEventListener('click', onStart);
+        startBtn.addEventListener('touchend', onStart, { passive: false });
+        startOverlay.addEventListener('click', onStart);
+
+        window.addEventListener('resize', () => { if (isRunning) fillScreen(); });
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (chantInterval) { clearInterval(chantInterval); chantInterval = null; }
+                if (audioCtx) audioCtx.suspend();
+            } else if (isRunning) {
+                if (audioCtx) audioCtx.resume();
+                if (!chantInterval) startChant();
+            }
+        });
+    </script>
+</body>
+</html>
