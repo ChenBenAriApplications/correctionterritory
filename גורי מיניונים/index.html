@@ -12,10 +12,33 @@
         html, body { width: 100%; height: 100%; overflow: hidden; touch-action: manipulation; }
         body { background: #1b5e20; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
 
+        #startOverlay {
+            position: fixed; inset: 0; z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.55);
+            cursor: pointer;
+        }
+        #startOverlay.hidden { display: none; }
+        #startBtn {
+            border: none; cursor: pointer;
+            background: linear-gradient(135deg, #ffe566, #f5d000);
+            color: #333; font-size: clamp(1.6rem, 7vw, 2.8rem);
+            font-weight: bold; padding: 22px 48px; border-radius: 50px;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+            animation: btnBounce 1s ease-in-out infinite;
+            -webkit-appearance: none; appearance: none;
+        }
+        @keyframes btnBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
         .crowd-field {
             position: fixed; inset: 0; overflow: hidden;
             background: linear-gradient(180deg, #2e7d32 0%, #1b5e20 55%, #0d3d12 100%);
+            display: none;
         }
+        .crowd-field.active { display: block; }
         .stadium-lights {
             position: absolute; inset: 0; pointer-events: none; z-index: 0;
             background:
@@ -247,7 +270,10 @@
     </style>
 </head>
 <body>
-    <div class="crowd-field active" id="crowdField">
+    <div id="startOverlay">
+        <button type="button" id="startBtn">🍌 לחצו לגורי מיניונים!</button>
+    </div>
+    <div class="crowd-field" id="crowdField">
         <div class="stadium-lights"></div>
     </div>
 
@@ -281,86 +307,116 @@
         };
 
         const CHANT_EVERY_MS = 1000;
-        const CROWD_LAYERS = 14;
+        const CROWD_LAYERS = 10;
         const GORI_CLIP_URLS = Array.from({length: 12}, (_, i) => `audio/gori-play-${i + 1}.mp3`);
 
         let isRunning = false, fans = [];
-        let audioCtx, masterGain, reverbNode, crowdBus, chantBus, crowdNoiseGain;
+        let audioCtx, masterGain, crowdNoiseGain, chantDestination;
         let chantInterval = null, goriBuffers = [];
-
-        function makeReverbIR(seconds, decay) {
-            const rate = audioCtx.sampleRate, len = rate * seconds;
-            const buf = audioCtx.createBuffer(2, len, rate);
-            for (let c = 0; c < 2; c++) {
-                const ch = buf.getChannelData(c);
-                for (let i = 0; i < len; i++) ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
-            }
-            return buf;
-        }
+        let useFallbackAudio = false;
+        const startOverlay = document.getElementById('startOverlay');
+        const startBtn = document.getElementById('startBtn');
 
         function initAudio() {
             if (audioCtx) return;
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if (!Ctx) { useFallbackAudio = true; return; }
+
+            audioCtx = new Ctx();
             masterGain = audioCtx.createGain();
-            masterGain.gain.value = 1.1;
-            reverbNode = audioCtx.createConvolver();
-            reverbNode.buffer = makeReverbIR(2.8, 2.2);
-            reverbNode.connect(masterGain);
-            crowdBus = audioCtx.createGain();
-            crowdBus.gain.value = 0.85;
-            crowdBus.connect(reverbNode);
-            chantBus = audioCtx.createGain();
-            chantBus.gain.value = 1.0;
-            chantBus.connect(reverbNode);
-            chantBus.connect(masterGain);
+            masterGain.gain.value = 1.8;
             masterGain.connect(audioCtx.destination);
+            chantDestination = masterGain;
 
             const bufLen = audioCtx.sampleRate * 3;
             const noiseBuf = audioCtx.createBuffer(2, bufLen, audioCtx.sampleRate);
             for (let c = 0; c < 2; c++) {
                 const d = noiseBuf.getChannelData(c);
-                for (let i = 0; i < bufLen; i++) d[i] = (Math.random() * 2 - 1) * 0.35;
+                for (let i = 0; i < bufLen; i++) d[i] = (Math.random() * 2 - 1) * 0.3;
             }
             const noise = audioCtx.createBufferSource();
             noise.buffer = noiseBuf;
             noise.loop = true;
             const bp = audioCtx.createBiquadFilter();
             bp.type = 'bandpass';
-            bp.frequency.value = 450;
-            bp.Q.value = 0.35;
+            bp.frequency.value = 500;
             crowdNoiseGain = audioCtx.createGain();
-            crowdNoiseGain.gain.value = 0.22;
-            noise.connect(bp).connect(crowdNoiseGain).connect(crowdBus);
+            crowdNoiseGain.gain.value = 0.18;
+            noise.connect(bp).connect(crowdNoiseGain).connect(masterGain);
             noise.start();
         }
 
         async function loadGoriClips() {
-            if (goriBuffers.length) return;
+            if (goriBuffers.length || useFallbackAudio || !audioCtx) return;
             for (const url of GORI_CLIP_URLS) {
                 try {
                     const res = await fetch(url);
-                    goriBuffers.push(await audioCtx.decodeAudioData(await res.arrayBuffer()));
-                } catch (e) { /* skip */ }
+                    if (!res.ok) continue;
+                    const data = await res.arrayBuffer();
+                    const buf = await audioCtx.decodeAudioData(data);
+                    goriBuffers.push(buf);
+                } catch (e) {
+                    console.warn('clip load failed', url, e);
+                }
+            }
+            if (!goriBuffers.length) useFallbackAudio = true;
+            window.__goriBuffersCount = goriBuffers.length;
+            window.__useFallbackAudio = useFallbackAudio;
+            if (audioCtx) window.__audioCtxState = audioCtx.state;
+        }
+
+        function playVoiceLayer(buffer, volume, rate, pan, delay) {
+            const src = audioCtx.createBufferSource();
+            src.buffer = buffer;
+            src.playbackRate.value = rate;
+            const g = audioCtx.createGain();
+            g.gain.value = volume;
+            try {
+                const p = audioCtx.createStereoPanner();
+                p.pan.value = pan;
+                src.connect(g).connect(p).connect(chantDestination);
+            } catch (e) {
+                src.connect(g).connect(chantDestination);
+            }
+            src.start(audioCtx.currentTime + delay);
+        }
+
+        function playWebAudioChant() {
+            const pick = () => goriBuffers[Math.floor(Math.random() * goriBuffers.length)];
+            for (let i = 0; i < CROWD_LAYERS; i++) {
+                playVoiceLayer(
+                    pick(),
+                    0.55 + Math.random() * 0.35,
+                    0.9 + Math.random() * 0.2,
+                    (Math.random() - 0.5) * 1.4,
+                    Math.random() * 0.08
+                );
+            }
+            if (crowdNoiseGain) {
+                const t = audioCtx.currentTime;
+                crowdNoiseGain.gain.setTargetAtTime(0.28, t, 0.04);
+                crowdNoiseGain.gain.setTargetAtTime(0.18, t + 0.45, 0.12);
+            }
+        }
+
+        function playFallbackChant() {
+            const count = 8 + Math.floor(Math.random() * 4);
+            for (let i = 0; i < count; i++) {
+                const url = GORI_CLIP_URLS[Math.floor(Math.random() * GORI_CLIP_URLS.length)];
+                const a = new Audio(url);
+                a.volume = 0.55 + Math.random() * 0.35;
+                a.playbackRate = 0.92 + Math.random() * 0.16;
+                setTimeout(() => { a.play().catch(() => {}); }, i * 30);
             }
         }
 
         function playStadiumCrowdChant() {
-            if (!audioCtx || !goriBuffers.length) return;
-            const t = audioCtx.currentTime;
-            const pick = () => goriBuffers[Math.floor(Math.random() * goriBuffers.length)];
-            for (let i = 0; i < CROWD_LAYERS; i++) {
-                const src = audioCtx.createBufferSource();
-                src.buffer = pick();
-                src.playbackRate.value = 0.88 + Math.random() * 0.28;
-                const pan = audioCtx.createStereoPanner();
-                pan.pan.value = (Math.random() - 0.5) * 1.6;
-                const g = audioCtx.createGain();
-                g.gain.value = 0.25 + Math.random() * 0.45;
-                src.connect(pan).connect(g).connect(chantBus);
-                src.start(t + Math.random() * 0.09);
+            if (useFallbackAudio || !goriBuffers.length) {
+                playFallbackChant();
+                return;
             }
-            crowdNoiseGain.gain.setTargetAtTime(0.32, t, 0.05);
-            crowdNoiseGain.gain.setTargetAtTime(0.22, t + 0.5, 0.15);
+            if (audioCtx.state === 'suspended') return;
+            playWebAudioChant();
         }
 
         function triggerBubbles() {
@@ -410,19 +466,30 @@
         async function startExperience() {
             if (isRunning) return;
             isRunning = true;
+
+            startOverlay.classList.add('hidden');
+            field.classList.add('active');
             fillScreen();
+
             initAudio();
-            if (audioCtx.state === 'suspended') await audioCtx.resume();
+            if (audioCtx) {
+                await audioCtx.resume();
+            }
             await loadGoriClips();
+
+            playStadiumCrowdChant();
             startChant();
         }
 
-        fillScreen();
-        startExperience();
+        function onStart(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            startExperience();
+        }
 
-        document.body.addEventListener('pointerdown', () => {
-            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-        }, { once: true });
+        startBtn.addEventListener('click', onStart);
+        startBtn.addEventListener('touchend', onStart, { passive: false });
+        startOverlay.addEventListener('click', onStart);
 
         window.addEventListener('resize', () => { if (isRunning) fillScreen(); });
         document.addEventListener('visibilitychange', () => {
@@ -430,7 +497,7 @@
                 if (chantInterval) { clearInterval(chantInterval); chantInterval = null; }
                 if (audioCtx) audioCtx.suspend();
             } else if (isRunning) {
-                audioCtx.resume();
+                if (audioCtx) audioCtx.resume();
                 if (!chantInterval) startChant();
             }
         });
