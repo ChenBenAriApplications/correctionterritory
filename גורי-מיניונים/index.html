@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>גורי מיניונים</title>
+    <meta name="description" content="גורי! גורי! גורי! מיניונים חמודים עולים ויורדים על כל המסך!">
+    <meta property="og:title" content="גורי מיניונים">
+    <meta property="og:description" content="גורי! גורי! גורי! מיניונים חמודים עולים ויורדים על כל המסך!">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="he_IL">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="גורי מיניונים">
+    <meta name="twitter:description" content="גורי! גורי! גורי!">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            touch-action: manipulation;
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(180deg, #87ceeb 0%, #4fc3f7 40%, #29b6f6 100%);
+            position: relative;
+        }
+
+        .sky-glow {
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 10%, rgba(255,255,200,0.4) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.3) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .title-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            text-align: center;
+            padding: 12px 16px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .title-banner h1 {
+            color: #fff;
+            font-size: clamp(1.4rem, 5vw, 2.4rem);
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5), 0 0 20px rgba(255,220,0,0.6);
+            letter-spacing: 2px;
+            animation: titlePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .minion-field {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+        }
+
+        .minion {
+            position: absolute;
+            cursor: pointer;
+            will-change: transform;
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.25));
+        }
+
+        .minion-body {
+            position: relative;
+            width: var(--size, 60px);
+            height: calc(var(--size, 60px) * 1.35);
+        }
+
+        .minion-head {
+            width: var(--size, 60px);
+            height: calc(var(--size, 60px) * 0.85);
+            background: linear-gradient(160deg, #ffe566 0%, #f5d000 50%, #e6c200 100%);
+            border-radius: 50% 50% 45% 45%;
+            position: relative;
+            z-index: 2;
+        }
+
+        .goggles {
+            position: absolute;
+            top: 28%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 2px;
+            z-index: 3;
+        }
+
+        .goggle-lens {
+            width: calc(var(--size, 60px) * 0.32);
+            height: calc(var(--size, 60px) * 0.32);
+            background: radial-gradient(circle at 35% 35%, #e8e8e8, #9e9e9e 60%, #616161);
+            border-radius: 50%;
+            border: 3px solid #424242;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .goggle-lens::after {
+            content: '';
+            position: absolute;
+            width: 35%;
+            height: 35%;
+            background: #1a1a2e;
+            border-radius: 50%;
+            top: 40%;
+            left: 35%;
+        }
+
+        .goggle-bridge {
+            width: calc(var(--size, 60px) * 0.08);
+            height: calc(var(--size, 60px) * 0.12);
+            background: #424242;
+            align-self: center;
+            border-radius: 2px;
+        }
+
+        .goggle-strap {
+            position: absolute;
+            top: 32%;
+            left: -8%;
+            right: -8%;
+            height: calc(var(--size, 60px) * 0.1);
+            background: #424242;
+            border-radius: 4px;
+            z-index: 1;
+        }
+
+        .mouth {
+            position: absolute;
+            bottom: 18%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(var(--size, 60px) * 0.35);
+            height: calc(var(--size, 60px) * 0.12);
+            border-bottom: 3px solid #333;
+            border-radius: 0 0 50% 50%;
+        }
+
+        .overalls {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(var(--size, 60px) * 0.75);
+            height: calc(var(--size, 60px) * 0.55);
+            background: linear-gradient(180deg, #1565c0, #0d47a1);
+            border-radius: 8px 8px 12px 12px;
+            z-index: 1;
+        }
+
+        .overalls::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(var(--size, 60px) * 0.2);
+            height: 60%;
+            background: #0d47a1;
+            border-radius: 0 0 4px 4px;
+        }
+
+        .pocket {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(var(--size, 60px) * 0.3);
+            height: calc(var(--size, 60px) * 0.18);
+            border: 2px solid #0a3d7a;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .arm {
+            position: absolute;
+            width: calc(var(--size, 60px) * 0.15);
+            height: calc(var(--size, 60px) * 0.35);
+            background: linear-gradient(160deg, #ffe566, #f5d000);
+            border-radius: 8px;
+            top: 55%;
+            z-index: 0;
+        }
+
+        .arm.left { left: -5%; transform: rotate(20deg); }
+        .arm.right { right: -5%; transform: rotate(-20deg); }
+
+        .leg {
+            position: absolute;
+            bottom: -12%;
+            width: calc(var(--size, 60px) * 0.18);
+            height: calc(var(--size, 60px) * 0.2);
+            background: #0d47a1;
+            border-radius: 0 0 6px 6px;
+        }
+
+        .leg.left { left: 18%; }
+        .leg.right { right: 18%; }
+
+        .shoe {
+            position: absolute;
+            bottom: -22%;
+            width: calc(var(--size, 60px) * 0.22);
+            height: calc(var(--size, 60px) * 0.1);
+            background: #212121;
+            border-radius: 50% 50% 4px 4px;
+        }
+
+        .shoe.left { left: 15%; }
+        .shoe.right { right: 15%; }
+
+        .speech-bubble {
+            position: absolute;
+            top: -30%;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            background: #fff;
+            color: #d32f2f;
+            font-weight: bold;
+            font-size: calc(var(--size, 60px) * 0.22);
+            padding: 4px 10px;
+            border-radius: 12px;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+            z-index: 10;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid #fff;
+        }
+
+        .minion.speaking .speech-bubble {
+            transform: translateX(-50%) scale(1);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) rotate(var(--tilt, 0deg)); }
+            50% { transform: translateY(calc(-1 * var(--bounce, 40px))) rotate(var(--tilt, 0deg)); }
+        }
+
+        @keyframes bounceAlt {
+            0%, 100% { transform: translateY(calc(-1 * var(--bounce, 40px) * 0.3)) rotate(var(--tilt, 0deg)); }
+            50% { transform: translateY(calc(-1 * var(--bounce, 40px))) rotate(var(--tilt, 0deg)); }
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(var(--tilt, 0deg)); }
+            25% { transform: rotate(calc(var(--tilt, 0deg) + 5deg)); }
+            75% { transform: rotate(calc(var(--tilt, 0deg) - 5deg)); }
+        }
+
+        .start-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: rgba(0,0,0,0.55);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            cursor: pointer;
+            transition: opacity 0.5s ease;
+        }
+
+        .start-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #ffe566, #f5d000);
+            color: #333;
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            font-weight: bold;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+            animation: btnBounce 1s ease-in-out infinite;
+            cursor: pointer;
+        }
+
+        @keyframes btnBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .start-overlay p {
+            color: #fff;
+            font-size: 1.1rem;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        .gori-counter {
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(255,255,255,0.9);
+            color: #d32f2f;
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 8px 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="sky-glow"></div>
+
+    <div class="title-banner">
+        <h1>גורי מיניונים 🍌</h1>
+    </div>
+
+    <div class="minion-field" id="minionField"></div>
+
+    <div class="gori-counter" id="goriCounter">גורי! × 0</div>
+
+    <div class="start-overlay" id="startOverlay">
+        <button class="start-btn" id="startBtn">🍌 לחצו להפעלת גורי מיניונים!</button>
+        <p>מיניונים חמודים עולים ויורדים וקוראים גורי! גורי! גורי!</p>
+    </div>
+
+    <script>
+        const MINION_COUNT = 28;
+        const field = document.getElementById('minionField');
+        const startOverlay = document.getElementById('startOverlay');
+        const startBtn = document.getElementById('startBtn');
+        const goriCounter = document.getElementById('goriCounter');
+        let goriCount = 0;
+        let isRunning = false;
+        let speechInterval = null;
+        let voices = [];
+
+        function loadVoices() {
+            voices = speechSynthesis.getVoices();
+        }
+        speechSynthesis.onvoiceschanged = loadVoices;
+        loadVoices();
+
+        function createMinion(index) {
+            const size = 35 + Math.random() * 45;
+            const left = Math.random() * 92;
+            const top = Math.random() * 85;
+            const bounce = 25 + Math.random() * 50;
+            const duration = 0.8 + Math.random() * 1.8;
+            const delay = Math.random() * 3;
+            const tilt = (Math.random() - 0.5) * 20;
+            const animName = index % 2 === 0 ? 'bounce' : 'bounceAlt';
+
+            const el = document.createElement('div');
+            el.className = 'minion';
+            el.style.cssText = `
+                --size: ${size}px;
+                --bounce: ${bounce}px;
+                --tilt: ${tilt}deg;
+                left: ${left}%;
+                top: ${top}%;
+                animation: ${animName} ${duration}s ease-in-out ${delay}s infinite;
+            `;
+
+            el.innerHTML = `
+                <div class="minion-body">
+                    <div class="speech-bubble">גורי!</div>
+                    <div class="arm left"></div>
+                    <div class="arm right"></div>
+                    <div class="minion-head">
+                        <div class="goggle-strap"></div>
+                        <div class="goggles">
+                            <div class="goggle-lens"></div>
+                            <div class="goggle-bridge"></div>
+                            <div class="goggle-lens"></div>
+                        </div>
+                        <div class="mouth"></div>
+                    </div>
+                    <div class="overalls">
+                        <div class="pocket"></div>
+                    </div>
+                    <div class="leg left"></div>
+                    <div class="leg right"></div>
+                    <div class="shoe left"></div>
+                    <div class="shoe right"></div>
+                </div>
+            `;
+
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sayGori(el);
+            });
+
+            field.appendChild(el);
+            return el;
+        }
+
+        const minions = [];
+        for (let i = 0; i < MINION_COUNT; i++) {
+            minions.push(createMinion(i));
+        }
+
+        function getHebrewVoice() {
+            return voices.find(v => v.lang.startsWith('he')) ||
+                   voices.find(v => v.lang.includes('he')) ||
+                   voices[0];
+        }
+
+        function sayGori(minionEl) {
+            if (!isRunning) return;
+
+            goriCount++;
+            goriCounter.textContent = `גורי! × ${goriCount}`;
+
+            if (minionEl) {
+                minionEl.classList.add('speaking');
+                setTimeout(() => minionEl.classList.remove('speaking'), 800);
+            }
+
+            const utterance = new SpeechSynthesisUtterance('גורי! גורי! גורי!');
+            utterance.lang = 'he-IL';
+            utterance.rate = 1.3;
+            utterance.pitch = 1.6;
+            utterance.volume = 1;
+            const voice = getHebrewVoice();
+            if (voice) utterance.voice = voice;
+
+            speechSynthesis.cancel();
+            speechSynthesis.speak(utterance);
+        }
+
+        function startExperience() {
+            isRunning = true;
+            startOverlay.classList.add('hidden');
+
+            sayGori(minions[Math.floor(Math.random() * minions.length)]);
+
+            speechInterval = setInterval(() => {
+                const randomMinion = minions[Math.floor(Math.random() * minions.length)];
+                sayGori(randomMinion);
+            }, 3500);
+        }
+
+        startBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            startExperience();
+        });
+
+        startOverlay.addEventListener('click', startExperience);
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && speechInterval) {
+                clearInterval(speechInterval);
+                speechInterval = null;
+            } else if (!document.hidden && isRunning && !speechInterval) {
+                speechInterval = setInterval(() => {
+                    const randomMinion = minions[Math.floor(Math.random() * minions.length)];
+                    sayGori(randomMinion);
+                }, 3500);
+            }
+        });
+    </script>
+</body>
+</html>
