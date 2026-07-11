@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>גורי מיניונים</title>
-    <meta name="description" content="גורי! קהל דיסני באצטדיון">
+    <meta name="description" content="גורי! מיניונים חמודים באצטדיון">
     <meta property="og:title" content="גורי מיניונים">
-    <meta property="og:description" content="גורי! קהל דיסני באצטדיון">
+    <meta property="og:description" content="גורי! מיניונים חמודים באצטדיון">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body { width: 100%; height: 100%; overflow: hidden; touch-action: manipulation; }
@@ -35,7 +35,7 @@
 
         .crowd-field {
             position: fixed; inset: 0; overflow: hidden;
-            background: linear-gradient(180deg, #2e7d32 0%, #1b5e20 55%, #0d3d12 100%);
+            background: linear-gradient(180deg, #87ceeb 0%, #4fc3f7 45%, #29b6f6 100%);
             display: none;
         }
         .crowd-field.active { display: block; }
@@ -47,207 +47,109 @@
                 radial-gradient(ellipse at 50% 100%, rgba(0,0,0,0.35) 0%, transparent 60%);
         }
 
-        .fan {
+        .minion {
             position: absolute; will-change: transform;
-            filter: drop-shadow(1px 3px 5px rgba(0,0,0,0.35)); z-index: 2;
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); z-index: 2;
         }
-        .fan-body { position: relative; width: var(--size); height: calc(var(--size) * 1.55); }
 
-        .ear {
-            position: absolute; width: calc(var(--size) * 0.4); height: calc(var(--size) * 0.4);
-            border-radius: 50%; top: -6%; z-index: 1;
+        .minion-body {
+            position: relative;
+            width: var(--size);
+            height: calc(var(--size) * 1.4);
         }
-        .ear.left { left: 4%; }
-        .ear.right { right: 4%; }
 
-        .head {
-            width: var(--size); height: calc(var(--size) * 0.88);
-            border-radius: 50%; position: relative; z-index: 3;
+        .minion-head {
+            width: var(--size);
+            height: calc(var(--size) * 0.88);
+            background: linear-gradient(160deg, #ffe566 0%, #f5d000 50%, #e6c200 100%);
+            border-radius: 50% 50% 45% 45%;
+            position: relative;
+            z-index: 3;
             animation: headShake 0.35s ease-in-out infinite alternate;
         }
 
-        .eye {
-            position: absolute; width: calc(var(--size) * 0.15); height: calc(var(--size) * 0.2);
-            background: #fff; border-radius: 50%; top: 34%; z-index: 5; border: 2px solid #111;
+        .goggle-strap {
+            position: absolute; top: 30%; left: -10%; right: -10%;
+            height: calc(var(--size) * 0.09); background: #424242;
+            border-radius: 4px; z-index: 1;
         }
-        .eye::after {
-            content: ''; position: absolute; width: 55%; height: 55%;
-            background: #111; border-radius: 50%; bottom: 10%; left: 22%;
+
+        .goggles {
+            position: absolute; top: 26%; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 2px; z-index: 4;
         }
-        .eye.left { left: 24%; }
-        .eye.right { right: 24%; }
+
+        .goggle-lens {
+            width: calc(var(--size) * 0.33);
+            height: calc(var(--size) * 0.33);
+            background: radial-gradient(circle at 35% 35%, #e8e8e8, #9e9e9e 60%, #616161);
+            border-radius: 50%; border: 3px solid #424242;
+            position: relative; overflow: hidden;
+        }
+
+        .goggle-lens::after {
+            content: ''; position: absolute; width: 38%; height: 38%;
+            background: #1a1a2e; border-radius: 50%; top: 38%; left: 32%;
+        }
+
+        .goggle-bridge {
+            width: calc(var(--size) * 0.07); height: calc(var(--size) * 0.11);
+            background: #424242; align-self: center; border-radius: 2px;
+        }
 
         .mouth {
-            position: absolute; bottom: 10%; left: 50%; transform: translateX(-50%);
-            width: calc(var(--size) * 0.26); height: calc(var(--size) * 0.16);
-            background: #222; border-radius: 50%;
+            position: absolute; bottom: 14%; left: 50%; transform: translateX(-50%);
+            width: calc(var(--size) * 0.34); height: calc(var(--size) * 0.2);
+            background: #2d2d2d; border-radius: 50%;
             animation: yell 0.45s ease-in-out infinite alternate;
         }
 
-        .bill {
-            position: absolute; bottom: 24%; left: 50%; transform: translateX(-50%);
-            width: calc(var(--size) * 0.48); height: calc(var(--size) * 0.17);
-            background: #ffb300; border-radius: 50% 50% 42% 42%; z-index: 4;
-        }
-
-        .bow, .crown, .cap {
-            position: absolute; left: 50%; transform: translateX(-50%); z-index: 6;
-        }
-        .bow {
-            top: -8%; width: calc(var(--size) * 0.5); height: calc(var(--size) * 0.2);
-            background: var(--accent, #e91e63); border-radius: 40%;
-        }
-        .bow::before, .bow::after {
-            content: ''; position: absolute; top: 18%; width: 36%; height: 72%;
-            background: var(--accent, #e91e63); border-radius: 50%;
-        }
-        .bow::before { left: -20%; }
-        .bow::after { right: -20%; }
-
-        .cap {
-            top: -10%; width: calc(var(--size) * 0.62); height: calc(var(--size) * 0.24);
-            background: var(--cap-color); border-radius: 45% 45% 10% 10%;
-        }
-
-        .crown {
-            top: -12%; width: calc(var(--size) * 0.55); height: calc(var(--size) * 0.22);
-            background: linear-gradient(180deg, #ffd700, #ff8f00);
-            clip-path: polygon(0% 100%, 15% 30%, 30% 100%, 50% 20%, 70% 100%, 85% 30%, 100% 100%);
-        }
-
-        .hair-bun {
-            position: absolute; top: -5%; left: 50%; transform: translateX(-50%);
-            width: calc(var(--size) * 0.35); height: calc(var(--size) * 0.3);
-            background: #1a1a1a; border-radius: 50%; z-index: 4;
-        }
-
-        .stripe {
-            position: absolute; inset: 0; border-radius: 50%;
-            background: repeating-linear-gradient(45deg, #e91e8c, #e91e8c 12%, #7b1fa2 12%, #7b1fa2 24%);
-            z-index: 2;
-        }
-
-        .grin {
-            position: absolute; bottom: 18%; left: 50%; transform: translateX(-50%);
-            width: calc(var(--size) * 0.55); height: calc(var(--size) * 0.12);
-            border-bottom: 4px solid #111; border-radius: 0 0 50% 50%; z-index: 5;
-        }
-
-        .snout {
-            position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%);
-            width: calc(var(--size) * 0.32); height: calc(var(--size) * 0.18);
-            background: #f5d0b0; border-radius: 50%; z-index: 4;
-        }
-
-        .shirt, .dress {
+        .overalls {
             position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-            width: calc(var(--size) * 0.82); z-index: 2; border-radius: 10px 10px 14px 14px;
+            width: calc(var(--size) * 0.78); height: calc(var(--size) * 0.52);
+            background: linear-gradient(180deg, #1565c0, #0d47a1);
+            border-radius: 8px 8px 12px 12px; z-index: 2;
         }
-        .shirt { height: calc(var(--size) * 0.52); }
-        .dress { height: calc(var(--size) * 0.58); }
+
+        .overalls::before {
+            content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: calc(var(--size) * 0.2); height: 55%; background: #0d47a1;
+            border-radius: 0 0 4px 4px;
+        }
+
+        .pocket {
+            position: absolute; bottom: 14%; left: 50%; transform: translateX(-50%);
+            width: calc(var(--size) * 0.28); height: calc(var(--size) * 0.16);
+            border: 2px solid #0a3d7a; border-radius: 4px;
+            background: rgba(255,255,255,0.12);
+        }
 
         .arm {
-            position: absolute; width: calc(var(--size) * 0.12); height: calc(var(--size) * 0.38);
-            border-radius: 8px; top: 44%; z-index: 4; transform-origin: bottom center;
-            background: var(--skin, #111);
+            position: absolute; width: calc(var(--size) * 0.13); height: calc(var(--size) * 0.4);
+            background: linear-gradient(160deg, #ffe566, #f5d000);
+            border-radius: 8px; top: 42%; z-index: 4; transform-origin: bottom center;
         }
-        .arm.left { left: 2%; animation: armLeft 0.8s ease-in-out infinite alternate; }
-        .arm.right { right: 2%; animation: armRight 0.8s ease-in-out infinite alternate-reverse; }
+        .arm.left { left: 0; animation: armLeft 0.8s ease-in-out infinite alternate; }
+        .arm.right { right: 0; animation: armRight 0.8s ease-in-out infinite alternate-reverse; }
 
-        .dots::after {
-            content: ''; position: absolute; inset: 15% 10%;
-            background-image: radial-gradient(circle, #fff 18%, transparent 20%);
-            background-size: 28% 35%; opacity: 0.7;
+        .leg {
+            position: absolute; bottom: -10%; width: calc(var(--size) * 0.17);
+            height: calc(var(--size) * 0.18); background: #0d47a1;
+            border-radius: 0 0 5px 5px;
         }
+        .leg.left { left: 20%; }
+        .leg.right { right: 20%; }
 
-        /* 18 Disney-style characters */
-        .type-mickey .ear, .type-mickey-bw .ear, .type-mickey-silver .ear { background: var(--skin, #111); }
-        .type-mickey .head { background: radial-gradient(circle at 40% 35%, #333, #111); }
-        .type-mickey .shirt { background: linear-gradient(180deg, #e53935, #b71c1c); }
-        .type-mickey-bw .head { background: radial-gradient(circle at 40% 35%, #888, #222); filter: grayscale(1); }
-        .type-mickey-bw .shirt { background: linear-gradient(180deg, #666, #333); }
-        .type-mickey-silver .head { background: linear-gradient(145deg, #e0e0e0, #9e9e9e, #bdbdbd); }
-        .type-mickey-silver .shirt { background: linear-gradient(180deg, #cfd8dc, #90a4ae); }
-
-        .type-minnie .ear { background: #111; }
-        .type-minnie .head { background: radial-gradient(circle at 40% 35%, #333, #111); }
-        .type-minnie { --accent: #e91e63; }
-        .type-minnie .shirt { background: linear-gradient(180deg, #e91e63, #ad1457); }
-        .type-minnie .dress { background: linear-gradient(180deg, #e53935, #c62828); }
-
-        .type-donald .head, .type-daisy .head, .type-huey .head, .type-dewey .head, .type-louie .head {
-            background: radial-gradient(circle at 40% 30%, #fff, #ececec);
+        .shoe {
+            position: absolute; bottom: -18%; width: calc(var(--size) * 0.2);
+            height: calc(var(--size) * 0.09); background: #212121;
+            border-radius: 50% 50% 3px 3px;
         }
-        .type-donald .arm, .type-daisy .arm, .type-huey .arm, .type-dewey .arm, .type-louie .arm { --skin: #f5d0b0; }
-        .type-donald .shirt { background: linear-gradient(180deg, #1565c0, #0d47a1); }
-        .type-daisy { --accent: #ab47bc; }
-        .type-daisy .shirt { background: linear-gradient(180deg, #ab47bc, #7b1fa2); }
-        .type-huey { --cap-color: #e53935; }
-        .type-huey .shirt { background: #e53935; }
-        .type-dewey { --cap-color: #1e88e5; }
-        .type-dewey .shirt { background: #1e88e5; }
-        .type-louie { --cap-color: #43a047; }
-        .type-louie .shirt { background: #43a047; }
-
-        .type-lilo .head { background: radial-gradient(circle at 45% 38%, #f5d0b0, #e0b48a); border-radius: 48% 48% 45% 45%; }
-        .type-lilo .arm { --skin: #f5d0b0; }
-        .type-lilo .dress {
-            background: linear-gradient(180deg, #e53935, #b71c1c);
-            background-image: radial-gradient(ellipse at 30% 40%, rgba(255,255,255,0.5) 8%, transparent 10%),
-                              linear-gradient(180deg, #e53935, #b71c1c);
-        }
-
-        .type-stitch .ear { background: #42a5f5; width: calc(var(--size) * 0.32); height: calc(var(--size) * 0.5); border-radius: 40%; top: 8%; }
-        .type-stitch .ear.left { transform: rotate(-25deg); left: -2%; }
-        .type-stitch .ear.right { transform: rotate(25deg); right: -2%; }
-        .type-stitch .head { background: radial-gradient(circle at 40% 35%, #64b5f6, #1e88e5); border-radius: 45%; height: calc(var(--size) * 0.82); }
-        .type-stitch .eye { background: #111; border: none; width: calc(var(--size) * 0.13); height: calc(var(--size) * 0.13); top: 38%; }
-        .type-stitch .eye::after { background: #fff; width: 35%; height: 35%; }
-        .type-stitch .shirt { background: linear-gradient(180deg, #1e88e5, #1565c0); }
-
-        .type-stitch-suit .ear { background: #42a5f5; width: calc(var(--size) * 0.3); height: calc(var(--size) * 0.48); border-radius: 40%; top: 8%; }
-        .type-stitch-suit .ear.left { transform: rotate(-25deg); }
-        .type-stitch-suit .ear.right { transform: rotate(25deg); }
-        .type-stitch-suit .head { background: radial-gradient(circle at 40% 35%, #64b5f6, #1e88e5); border-radius: 45%; }
-        .type-stitch-suit .shirt { background: linear-gradient(90deg, #e53935 50%, #1565c0 50%); }
-
-        .type-alice .head { background: radial-gradient(circle at 45% 38%, #ffe0b2, #ffcc80); border-radius: 48% 48% 44% 44%; }
-        .type-alice { --accent: #42a5f5; }
-        .type-alice .arm { --skin: #ffe0b2; }
-        .type-alice .dress { background: linear-gradient(180deg, #42a5f5, #1e88e5); height: calc(var(--size) * 0.62); }
-        .type-alice .dress::before {
-            content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 35%;
-            background: #fff; border-radius: 4px;
-        }
-
-        .type-queen .head { background: radial-gradient(circle at 45% 38%, #ffccbc, #ffab91); }
-        .type-queen .arm { --skin: #ffccbc; }
-        .type-queen .dress {
-            background: linear-gradient(180deg, #b71c1c 0%, #7f0000 40%, #ffd700 40%, #ff8f00 100%);
-            border-radius: 8px 8px 16px 16px;
-        }
-
-        .type-cheshire .head { background: transparent; overflow: visible; }
-        .type-cheshire .stripe { border-radius: 50%; }
-        .type-cheshire .arm { --skin: #e91e8c; }
-
-        .type-pooh .head { background: radial-gradient(circle at 40% 35%, #ffca28, #ffb300); }
-        .type-pooh .ear { background: #ffb300; }
-        .type-pooh .eye { border-color: #5d4037; }
-        .type-pooh .shirt { background: #e53935; height: calc(var(--size) * 0.38); border-radius: 8px; }
-
-        .type-roo .head { background: radial-gradient(circle at 40% 35%, #ffca28, #ffb300); border-radius: 50% 50% 45% 45%; height: calc(var(--size) * 0.72); }
-        .type-roo .ear { background: #ffb300; width: calc(var(--size) * 0.28); height: calc(var(--size) * 0.28); }
-        .type-roo .shirt { background: #42a5f5; height: calc(var(--size) * 0.35); }
-
-        .type-eeyore .head { background: radial-gradient(circle at 40% 35%, #9e9e9e, #616161); border-radius: 45% 50% 40% 40%; }
-        .type-eeyore .ear { background: #757575; width: calc(var(--size) * 0.22); height: calc(var(--size) * 0.55); border-radius: 30%; top: 5%; }
-        .type-eeyore .ear.left { transform: rotate(-15deg); left: 8%; }
-        .type-eeyore .ear.right { transform: rotate(15deg); right: 8%; }
-        .type-eeyore .shirt { background: #ff80ab; height: calc(var(--size) * 0.3); }
+        .shoe.left { left: 17%; }
+        .shoe.right { right: 17%; }
 
         @keyframes headShake { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
-        @keyframes yell { from { transform: translateX(-50%) scale(0.85); } to { transform: translateX(-50%) scale(1.25); } }
+        @keyframes yell { from { transform: translateX(-50%) scale(0.85); } to { transform: translateX(-50%) scale(1.2); } }
         @keyframes armLeft { from { transform: rotate(-150deg); } to { transform: rotate(-120deg); } }
         @keyframes armRight { from { transform: rotate(150deg); } to { transform: rotate(120deg); } }
         @keyframes crowdJump {
@@ -258,10 +160,12 @@
 
         .chant-bubble {
             position: absolute; top: -22%; left: 50%; transform: translateX(-50%);
-            color: #fff; font-weight: 900; font-size: calc(var(--size) * 0.24);
-            text-shadow: 1px 1px 4px rgba(0,0,0,0.7); opacity: 0; pointer-events: none; white-space: nowrap;
+            color: #d32f2f; font-weight: 900; font-size: calc(var(--size) * 0.22);
+            background: #fff; padding: 2px 8px; border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2); opacity: 0;
+            pointer-events: none; white-space: nowrap;
         }
-        .fan.chanting .chant-bubble { animation: bubblePop 0.7s ease-out; }
+        .minion.chanting .chant-bubble { animation: bubblePop 0.7s ease-out; }
         @keyframes bubblePop {
             0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
             25% { opacity: 1; transform: translateX(-50%) translateY(-6px) scale(1.15); }
@@ -279,38 +183,12 @@
 
     <script>
         const field = document.getElementById('crowdField');
-        const TYPES = [
-            'mickey-silver', 'mickey-bw', 'mickey', 'minnie', 'donald', 'daisy',
-            'huey', 'dewey', 'louie', 'lilo', 'stitch', 'stitch-suit',
-            'alice', 'queen', 'cheshire', 'pooh', 'roo', 'eeyore'
-        ];
-
-        const CHAR_PARTS = {
-            'mickey':        '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="shirt"></div>',
-            'mickey-bw':     '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="shirt"></div>',
-            'mickey-silver': '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="shirt"></div>',
-            'minnie':        '<div class="ear left"></div><div class="ear right"></div><div class="bow"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="dress dots"></div>',
-            'donald':        '<div class="head"><div class="eye left"></div><div class="eye right"></div><div class="bill"></div><div class="mouth"></div></div><div class="shirt"></div>',
-            'daisy':         '<div class="bow"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="bill"></div><div class="mouth"></div></div><div class="shirt"></div>',
-            'huey':          '<div class="cap"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="bill"></div><div class="mouth"></div></div><div class="shirt"></div>',
-            'dewey':         '<div class="cap"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="bill"></div><div class="mouth"></div></div><div class="shirt"></div>',
-            'louie':         '<div class="cap"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="bill"></div><div class="mouth"></div></div><div class="shirt"></div>',
-            'lilo':          '<div class="hair-bun"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="dress"></div>',
-            'stitch':        '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="shirt"></div>',
-            'stitch-suit':   '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="shirt"></div>',
-            'alice':         '<div class="bow"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="dress"></div>',
-            'queen':         '<div class="crown"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="dress"></div>',
-            'cheshire':      '<div class="head"><div class="stripe"></div><div class="eye left"></div><div class="eye right"></div><div class="grin"></div></div><div class="shirt"></div>',
-            'pooh':          '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="shirt"></div>',
-            'roo':           '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="shirt"></div>',
-            'eeyore':        '<div class="ear left"></div><div class="ear right"></div><div class="head"><div class="eye left"></div><div class="eye right"></div><div class="mouth"></div></div><div class="shirt"></div>'
-        };
 
         const CHANT_EVERY_MS = 1000;
         const CROWD_LAYERS = 10;
         const GORI_CLIP_URLS = Array.from({length: 12}, (_, i) => `audio/gori-play-${i + 1}.mp3`);
 
-        let isRunning = false, fans = [];
+        let isRunning = false, minions = [];
         let audioCtx, masterGain, crowdNoiseGain, chantDestination;
         let chantInterval = null, goriBuffers = [];
         let useFallbackAudio = false;
@@ -420,45 +298,66 @@
         }
 
         function triggerBubbles() {
-            for (let i = 0; i < 4 + Math.floor(Math.random() * 6); i++) {
-                const f = fans[Math.floor(Math.random() * fans.length)];
-                if (!f) continue;
-                f.classList.remove('chanting');
-                void f.offsetWidth;
-                f.classList.add('chanting');
+            for (let i = 0; i < 3 + Math.floor(Math.random() * 4); i++) {
+                const m = minions[Math.floor(Math.random() * minions.length)];
+                if (!m) continue;
+                m.classList.remove('chanting');
+                void m.offsetWidth;
+                m.classList.add('chanting');
             }
         }
 
         function shoutBeat() { triggerBubbles(); playStadiumCrowdChant(); }
         function startChant() { shoutBeat(); chantInterval = setInterval(shoutBeat, CHANT_EVERY_MS); }
 
-        function charHTML(type) {
-            return `<div class="fan-body type-${type}"><div class="chant-bubble">גורי!</div><div class="arm left"></div><div class="arm right"></div>${CHAR_PARTS[type]}</div>`;
+        function minionHTML() {
+            return `<div class="minion-body">
+                <div class="chant-bubble">גורי!</div>
+                <div class="arm left"></div>
+                <div class="arm right"></div>
+                <div class="minion-head">
+                    <div class="goggle-strap"></div>
+                    <div class="goggles">
+                        <div class="goggle-lens"></div>
+                        <div class="goggle-bridge"></div>
+                        <div class="goggle-lens"></div>
+                    </div>
+                    <div class="mouth"></div>
+                </div>
+                <div class="overalls"><div class="pocket"></div></div>
+                <div class="leg left"></div>
+                <div class="leg right"></div>
+                <div class="shoe left"></div>
+                <div class="shoe right"></div>
+            </div>`;
         }
 
         function fillScreen() {
-            fans = [];
-            field.querySelectorAll('.fan').forEach(el => el.remove());
-            const cols = Math.ceil(window.innerWidth / 44) + 1;
-            const rows = Math.ceil(window.innerHeight / 56) + 1;
+            minions = [];
+            field.querySelectorAll('.minion').forEach(el => el.remove());
+
+            const minionW = 78;
+            const minionH = 95;
+            const cols = Math.max(3, Math.ceil(window.innerWidth / minionW));
+            const rows = Math.max(3, Math.ceil(window.innerHeight / minionH));
             const cellW = window.innerWidth / cols;
             const cellH = window.innerHeight / rows;
 
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) {
-                    const type = TYPES[Math.floor(Math.random() * TYPES.length)];
-                    const size = 28 + Math.random() * 14;
+                    const size = 50 + Math.random() * 18;
                     const el = document.createElement('div');
-                    el.className = `fan type-${type}`;
+                    el.className = 'minion';
                     el.style.cssText = `
-                        --size:${size}px; --bounce:${10 + Math.random() * 16}px;
-                        left:${c * cellW + (Math.random() - 0.5) * cellW * 0.35}px;
-                        top:${r * cellH + (Math.random() - 0.5) * cellH * 0.28}px;
+                        --size:${size}px;
+                        --bounce:${14 + Math.random() * 20}px;
+                        left:${c * cellW + (Math.random() - 0.5) * cellW * 0.3}px;
+                        top:${r * cellH + (Math.random() - 0.5) * cellH * 0.25}px;
                         animation:crowdJump ${0.85 + Math.random() * 0.25}s ease-in-out ${Math.random() * 1.2}s infinite;
                     `;
-                    el.innerHTML = charHTML(type);
+                    el.innerHTML = minionHTML();
                     field.appendChild(el);
-                    fans.push(el);
+                    minions.push(el);
                 }
             }
         }

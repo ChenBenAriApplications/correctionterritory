@@ -32,7 +32,7 @@ server.listen(8765, async () => {
   const state = await page.evaluate(() => ({
     fieldActive: document.getElementById('crowdField').classList.contains('active'),
     overlayHidden: document.getElementById('startOverlay').classList.contains('hidden'),
-    fans: document.querySelectorAll('.fan').length,
+    fans: document.querySelectorAll('.minion').length,
     buffers: window.__goriBuffersCount || 0,
     fallback: window.__useFallbackAudio || false,
     ctxState: window.__audioCtxState || 'none'
