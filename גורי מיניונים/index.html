@@ -184,8 +184,8 @@
     <script>
         const field = document.getElementById('crowdField');
 
-        const CHANT_EVERY_MS = 1000;
-        const CROWD_LAYERS = 10;
+        const CHANT_EVERY_MS = 1400;
+        const CROWD_LAYERS = 8;
         const GORI_CLIP_URLS = Array.from({length: 12}, (_, i) => `audio/gori-play-${i + 1}.mp3`);
 
         let isRunning = false, minions = [];
@@ -264,10 +264,10 @@
             for (let i = 0; i < CROWD_LAYERS; i++) {
                 playVoiceLayer(
                     pick(),
-                    0.55 + Math.random() * 0.35,
-                    0.9 + Math.random() * 0.2,
-                    (Math.random() - 0.5) * 1.4,
-                    Math.random() * 0.08
+                    0.6 + Math.random() * 0.3,
+                    0.94 + Math.random() * 0.1,
+                    (Math.random() - 0.5) * 1.2,
+                    Math.random() * 0.12
                 );
             }
             if (crowdNoiseGain) {
@@ -278,13 +278,13 @@
         }
 
         function playFallbackChant() {
-            const count = 8 + Math.floor(Math.random() * 4);
+            const count = 6 + Math.floor(Math.random() * 3);
             for (let i = 0; i < count; i++) {
                 const url = GORI_CLIP_URLS[Math.floor(Math.random() * GORI_CLIP_URLS.length)];
                 const a = new Audio(url);
-                a.volume = 0.55 + Math.random() * 0.35;
-                a.playbackRate = 0.92 + Math.random() * 0.16;
-                setTimeout(() => { a.play().catch(() => {}); }, i * 30);
+                a.volume = 0.65 + Math.random() * 0.25;
+                a.playbackRate = 0.96 + Math.random() * 0.08;
+                setTimeout(() => { a.play().catch(() => {}); }, i * 60);
             }
         }
 
