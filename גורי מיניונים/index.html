@@ -161,7 +161,7 @@
             height: calc(var(--size) * 0.22);
             background: #2d2d2d;
             border-radius: 50%;
-            animation: yell 0.35s ease-in-out infinite alternate;
+            animation: yell 0.55s ease-in-out infinite alternate;
         }
 
         @keyframes yell {
@@ -206,12 +206,12 @@
 
         .arm.left {
             left: -2%;
-            animation: armLeft 0.6s ease-in-out infinite alternate;
+            animation: armLeft 1s ease-in-out infinite alternate;
         }
 
         .arm.right {
             right: -2%;
-            animation: armRight 0.6s ease-in-out infinite alternate-reverse;
+            animation: armRight 1s ease-in-out infinite alternate-reverse;
         }
 
         @keyframes armLeft {
@@ -354,7 +354,7 @@
                     osc.connect(stompGain).connect(audioCtx.destination);
                     osc.start();
                     osc.stop(audioCtx.currentTime + 0.25);
-                }, 900);
+                }, 1500);
             } catch (e) { /* audio optional */ }
         }
 
@@ -389,7 +389,7 @@
                     }
 
                     if (wordIndex >= words.length) {
-                        setTimeout(shoutPhrase, 1200);
+                        setTimeout(shoutPhrase, 2500);
                         return;
                     }
 
@@ -397,18 +397,18 @@
 
                     const u = new SpeechSynthesisUtterance(words[wordIndex]);
                     u.lang = 'he-IL';
-                    u.rate = 0.85 + Math.random() * 0.15;
-                    u.pitch = 1.0 + Math.random() * 0.35;
+                    u.rate = 0.65 + Math.random() * 0.1;
+                    u.pitch = 1.0 + Math.random() * 0.3;
                     u.volume = 1;
                     const voice = getHebrewVoice();
                     if (voice) u.voice = voice;
                     u.onend = function() {
                         wordIndex++;
-                        setTimeout(shoutNextWord, 650);
+                        setTimeout(shoutNextWord, 1300);
                     };
                     u.onerror = function() {
                         wordIndex++;
-                        setTimeout(shoutNextWord, 650);
+                        setTimeout(shoutNextWord, 1300);
                     };
                     speechSynthesis.speak(u);
                 }
@@ -434,8 +434,8 @@
             const left = col * cellW + (Math.random() - 0.5) * cellW * 0.4;
             const top = row * cellH + (Math.random() - 0.5) * cellH * 0.3;
             const bounce = 10 + Math.random() * 16;
-            const duration = 0.7 + Math.random() * 0.5;
-            const delay = Math.random() * 0.8;
+            const duration = 1.1 + Math.random() * 0.6;
+            const delay = Math.random() * 1.2;
             const goggleTilt = (Math.random() - 0.5) * 16;
 
             const el = document.createElement('div');
